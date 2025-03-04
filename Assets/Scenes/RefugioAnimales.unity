@@ -304,7 +304,7 @@ GameObject:
   - component: {fileID: 258736919}
   - component: {fileID: 258736918}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: ZonaPerros
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -340,7 +340,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -409,7 +409,7 @@ GameObject:
   - component: {fileID: 396177293}
   - component: {fileID: 396177292}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: SalaEspera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -445,7 +445,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -546,7 +546,7 @@ GameObject:
   - component: {fileID: 603640433}
   - component: {fileID: 603640432}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: SalaEntrevista
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -582,7 +582,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -671,9 +671,9 @@ MonoBehaviour:
   limpiadorPrefab: {fileID: 8491072135756154116, guid: 23d005d9a7f02424cb1f14a5f904da30, type: 3}
   puntoSpawnClientes: {fileID: 1445140417}
   puntosSpawnLimpiadores:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 1445140417}
+  - {fileID: 1445140417}
+  - {fileID: 1445140417}
   puntoCheckIn: {fileID: 1717897478}
   salaEspera: {fileID: 1839234012}
   salaEntrevista: {fileID: 594802019}
@@ -811,7 +811,7 @@ GameObject:
   - component: {fileID: 797324913}
   - component: {fileID: 797324912}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: ZonaGatos
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -847,7 +847,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -1126,13 +1126,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0.52635866, y: -0, z: -0, w: 0.85026264}
+  m_LocalPosition: {x: 0, y: 26.2, z: -16}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 63.52, y: 0, z: 0}
 --- !u!1 &1057088731
 GameObject:
   m_ObjectHideFlags: 0
@@ -1209,7 +1209,7 @@ GameObject:
   - component: {fileID: 1692117032}
   - component: {fileID: 1692117031}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: CheckIn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1245,7 +1245,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
