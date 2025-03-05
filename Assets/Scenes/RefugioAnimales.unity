@@ -133,7 +133,7 @@ GameObject:
   - component: {fileID: 41894393}
   m_Layer: 0
   m_Name: ZonaGatos
-  m_TagString: Untagged
+  m_TagString: Zona
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -270,7 +270,7 @@ GameObject:
   - component: {fileID: 142633436}
   m_Layer: 0
   m_Name: Checkout
-  m_TagString: Untagged
+  m_TagString: Zona
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -512,7 +512,7 @@ GameObject:
   - component: {fileID: 594802019}
   m_Layer: 0
   m_Name: SalaEntrevista
-  m_TagString: Untagged
+  m_TagString: Zona
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -672,23 +672,23 @@ MonoBehaviour:
   puntoSpawnClientes: {fileID: 1445140417}
   puntosSpawnLimpiadores:
   - {fileID: 1445140417}
-  - {fileID: 1445140417}
-  - {fileID: 1445140417}
   puntoCheckIn: {fileID: 1717897478}
   salaEspera: {fileID: 1839234012}
   salaEntrevista: {fileID: 594802019}
   zonaJuegos: {fileID: 41894393}
   checkout: {fileID: 142633436}
   salida: {fileID: 1445140417}
-  almacen: {fileID: 1057088732}
+  almacen: {fileID: 0}
   puntosPatrulla:
   - {fileID: 1717897478}
-  - {fileID: 41894393}
+  - {fileID: 1839234012}
   - {fileID: 594802019}
+  - {fileID: 41894393}
   salas:
   - {fileID: 1717897478}
-  - {fileID: 41894393}
+  - {fileID: 1839234012}
   - {fileID: 594802019}
+  - {fileID: 41894393}
 --- !u!4 &648586352
 Transform:
   m_ObjectHideFlags: 0
@@ -1144,7 +1144,7 @@ GameObject:
   - component: {fileID: 1057088732}
   m_Layer: 0
   m_Name: Almacen
-  m_TagString: Untagged
+  m_TagString: Zona
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1176,7 +1176,7 @@ GameObject:
   - component: {fileID: 1445140417}
   m_Layer: 0
   m_Name: Salida
-  m_TagString: Untagged
+  m_TagString: Zona
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1449,7 +1449,7 @@ GameObject:
   - component: {fileID: 1839234012}
   m_Layer: 0
   m_Name: SalaEspera
-  m_TagString: Untagged
+  m_TagString: Zona
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1481,7 +1481,7 @@ GameObject:
   - component: {fileID: 2054215575}
   m_Layer: 0
   m_Name: ZonaPerros
-  m_TagString: Untagged
+  m_TagString: Zona
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

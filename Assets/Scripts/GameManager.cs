@@ -11,7 +11,10 @@ public class GameManager : MonoBehaviour
     public Transform puntoCheckIn, salaEspera, salaEntrevista, zonaJuegos, checkout, salida, almacen;
     public Transform[] puntosPatrulla, salas;
 
-    private int maxClientes = 8, clientesActuales = 0, maxLimpiadores = 3;
+    private int maxClientes = 2, clientesActuales = 0, maxLimpiadores = 1;
+    private bool salaEntrevistaOcupada = false; // NUEVO: Variable para saber si hay alguien en la entrevista
+
+    private Queue<ClienteBT> clientesEnEspera = new Queue<ClienteBT>(); // NUEVO: Cola de clientes esperando
 
     void Start()
     {
@@ -33,11 +36,37 @@ public class GameManager : MonoBehaviour
             {
                 GameObject nuevoCliente = Instantiate(clientePrefab, puntoSpawnClientes.position, Quaternion.identity);
                 ClienteBT clienteScript = nuevoCliente.GetComponent<ClienteBT>();
-                clienteScript.InicializarCliente(puntoCheckIn, salaEspera, salaEntrevista, zonaJuegos, checkout, salida);
+                clienteScript.InicializarCliente(puntoCheckIn, salaEspera, salaEntrevista, zonaJuegos, checkout, salida, this);
                 clientesActuales++;
                 clienteScript.OnClienteSalido += ClienteSalido;
             }
         }
+    }
+
+    public bool SalaEntrevistaOcupada() // NUEVO: Saber si hay alguien en la entrevista
+    {
+        return salaEntrevistaOcupada;
+    }
+
+    public void OcupaSalaEntrevista() // NUEVO: Marcar la entrevista como ocupada
+    {
+        salaEntrevistaOcupada = true;
+    }
+
+    public void LiberaSalaEntrevista() // NUEVO: Marcar la entrevista como libre y permitir al siguiente cliente entrar
+    {
+        salaEntrevistaOcupada = false;
+
+        if (clientesEnEspera.Count > 0)
+        {
+            ClienteBT siguienteCliente = clientesEnEspera.Dequeue();
+            siguienteCliente.IniciarEntrevista();
+        }
+    }
+
+    public void AgregarClienteAEspera(ClienteBT cliente) // NUEVO: Agregar clientes a la sala de espera
+    {
+        clientesEnEspera.Enqueue(cliente);
     }
 
     void ClienteSalido()
