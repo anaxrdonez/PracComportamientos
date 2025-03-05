@@ -676,7 +676,8 @@ MonoBehaviour:
   puntoCheckIn: {fileID: 1717897478}
   salaEspera: {fileID: 1839234012}
   salaEntrevista: {fileID: 594802019}
-  zonaJuegos: {fileID: 41894393}
+  zonaGatos: {fileID: 41894393}
+  zonaPerros: {fileID: 2054215575}
   checkout: {fileID: 142633436}
   salida: {fileID: 1445140417}
   almacen: {fileID: 0}
