@@ -15,6 +15,8 @@ public class ClienteBT : MonoBehaviour
 
     public delegate void ClienteSalidoDelegate();
     public event ClienteSalidoDelegate OnClienteSalido;
+    private GameObject animalAsignado; // Animal que el cliente adopta
+
 
     public void InicializarCliente(Transform checkIn, Transform espera, Transform entrevista, Transform gatos, Transform perros, Transform check, Transform outRefugio, GameManager manager)
     {
@@ -120,14 +122,20 @@ public class ClienteBT : MonoBehaviour
     IEnumerator ProcesoEntrevista()
     {
         gameManager.OcupaSalaEntrevista();
-        yield return new WaitForSeconds(Random.Range(3f, 5f));
+
+        Debug.Log(name + " ha comenzado la entrevista.");
+        yield return new WaitForSeconds(Random.Range(3f, 5f)); // 🔥 Simula la entrevista
 
         aprobado = Random.value > 0.5f;
         quierePerro = Random.value > 0.5f;
 
         Debug.Log(name + " ha terminado la Entrevista. Aprobado: " + aprobado + ", Quiere Perro: " + quierePerro);
+
+        yield return new WaitForSeconds(1f); // 🔥 Asegura un pequeño retraso antes de continuar
+
         gameManager.LiberaSalaEntrevista();
     }
+
 
     IEnumerator VisitarZonaAdopcion()
     {
@@ -139,13 +147,46 @@ public class ClienteBT : MonoBehaviour
             yield return null;
 
         yield return new WaitForSeconds(Random.Range(3f, 7f));
+
+        // Asignar un animal
+        animalAsignado = gameManager.AsignarAnimal(quierePerro);
+
+        if (animalAsignado != null)
+        {
+            Debug.Log(name + " ha adoptado un " + (quierePerro ? "perro" : "gato"));
+            animalAsignado.transform.SetParent(transform); // El animal se pega al cliente
+            animalAsignado.transform.localPosition = new Vector3(0.5f, 0, 0); // Lo coloca a su lado
+        }
+
+        // Ir al Checkout antes de salir
+        yield return StartCoroutine(IrA(checkout));
+
+        while (DetectarZonaActual() != "Checkout")
+            yield return null;
+
+        Debug.Log(name + " ha llegado al checkout.");
+
+        // Liberar el animal antes de salir
+        gameManager.LiberarAnimal(animalAsignado);
+        animalAsignado = null;
+
+        yield return StartCoroutine(IrA(salida));
+
+        SalirDelRefugio();
     }
+
 
     public IEnumerator IrA(Transform destino)
     {
         if (destino == null)
         {
-            Debug.LogError("❌ ERROR: Destino NULL en ClienteBT.");
+            Debug.LogError("❌ ERROR: Destino NULL en ClienteBT. Verifica que todas las posiciones están asignadas en GameManager.");
+            yield break;
+        }
+
+        if (agente == null)
+        {
+            Debug.LogError("❌ ERROR: NavMeshAgent es NULL en ClienteBT.");
             yield break;
         }
 
@@ -166,6 +207,7 @@ public class ClienteBT : MonoBehaviour
         agente.isStopped = true;
         Debug.Log(name + " llegó a " + destino.name);
     }
+
 
     void SalirDelRefugio()
     {

@@ -745,6 +745,8 @@ MonoBehaviour:
   zonaPerros: {fileID: 2054215575}
   checkout: {fileID: 142633436}
   salida: {fileID: 1445140417}
+  perroPrefab: {fileID: 6039943368737488915, guid: 4c1d31f762a74f443b800e2b550a210a, type: 3}
+  gatoPrefab: {fileID: 8407799148742324440, guid: 60330b61dc6b4764c8991e16e6325937, type: 3}
 --- !u!4 &648586352
 Transform:
   m_ObjectHideFlags: 0
