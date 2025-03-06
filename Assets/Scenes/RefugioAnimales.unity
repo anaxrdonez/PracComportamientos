@@ -165,6 +165,7 @@ GameObject:
   - component: {fileID: 88486565}
   - component: {fileID: 88486564}
   - component: {fileID: 88486563}
+  - component: {fileID: 88486566}
   m_Layer: 0
   m_Name: Almacen
   m_TagString: Zona
@@ -181,8 +182,8 @@ Transform:
   m_GameObject: {fileID: 88486561}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -14.9, y: 0, z: 13.400001}
-  m_LocalScale: {x: 13, y: 1, z: 8}
+  m_LocalPosition: {x: -14.9, y: -1, z: 13.400001}
+  m_LocalScale: {x: 13, y: 3, z: 8}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1057088732}
@@ -259,6 +260,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 88486561}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &88486566
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 88486561}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &142633435
 GameObject:
   m_ObjectHideFlags: 0
@@ -302,6 +319,7 @@ GameObject:
   - component: {fileID: 258736920}
   - component: {fileID: 258736919}
   - component: {fileID: 258736918}
+  - component: {fileID: 258736921}
   m_Layer: 0
   m_Name: ZonaPerros
   m_TagString: Zona
@@ -318,8 +336,8 @@ Transform:
   m_GameObject: {fileID: 258736916}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 13, y: 0, z: -9.499999}
-  m_LocalScale: {x: 13, y: 1, z: 13}
+  m_LocalPosition: {x: 13, y: -1, z: -9.499999}
+  m_LocalScale: {x: 13, y: 3, z: 13}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2054215575}
@@ -396,6 +414,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 258736916}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &258736921
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 258736916}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &396177290
 GameObject:
   m_ObjectHideFlags: 0
@@ -408,6 +442,7 @@ GameObject:
   - component: {fileID: 396177294}
   - component: {fileID: 396177293}
   - component: {fileID: 396177292}
+  - component: {fileID: 396177295}
   m_Layer: 0
   m_Name: SalaEspera
   m_TagString: Zona
@@ -424,8 +459,8 @@ Transform:
   m_GameObject: {fileID: 396177290}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 15.500001, y: 0, z: 9.299999}
-  m_LocalScale: {x: 13, y: 1, z: 8}
+  m_LocalPosition: {x: 15.500001, y: -1, z: 9.299999}
+  m_LocalScale: {x: 13, y: 3, z: 8}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1839234012}
@@ -502,6 +537,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 396177290}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &396177295
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 396177290}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.2
 --- !u!1 &594802018
 GameObject:
   m_ObjectHideFlags: 0
@@ -545,6 +596,7 @@ GameObject:
   - component: {fileID: 603640434}
   - component: {fileID: 603640433}
   - component: {fileID: 603640432}
+  - component: {fileID: 603640435}
   m_Layer: 0
   m_Name: SalaEntrevista
   m_TagString: Zona
@@ -561,8 +613,8 @@ Transform:
   m_GameObject: {fileID: 603640430}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 15.500001, y: 0, z: 17.9}
-  m_LocalScale: {x: 13, y: 1, z: 8}
+  m_LocalPosition: {x: 15.500001, y: -1, z: 17.9}
+  m_LocalScale: {x: 13, y: 3, z: 8}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 594802019}
@@ -639,6 +691,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 603640430}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &603640435
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 603640430}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.25, y: 0.25, z: 0.25}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &648586350
 GameObject:
   m_ObjectHideFlags: 0
@@ -669,10 +737,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   clientePrefab: {fileID: 5253777330552791220, guid: ea80c469617de6e4781e71998addfcfa, type: 3}
-  limpiadorPrefab: {fileID: 8491072135756154116, guid: 23d005d9a7f02424cb1f14a5f904da30, type: 3}
   puntoSpawnClientes: {fileID: 1445140417}
-  puntosSpawnLimpiadores:
-  - {fileID: 1445140417}
   puntoCheckIn: {fileID: 1717897478}
   salaEspera: {fileID: 1839234012}
   salaEntrevista: {fileID: 594802019}
@@ -680,17 +745,6 @@ MonoBehaviour:
   zonaPerros: {fileID: 2054215575}
   checkout: {fileID: 142633436}
   salida: {fileID: 1445140417}
-  almacen: {fileID: 0}
-  puntosPatrulla:
-  - {fileID: 1717897478}
-  - {fileID: 1839234012}
-  - {fileID: 594802019}
-  - {fileID: 41894393}
-  salas:
-  - {fileID: 1717897478}
-  - {fileID: 1839234012}
-  - {fileID: 594802019}
-  - {fileID: 41894393}
 --- !u!4 &648586352
 Transform:
   m_ObjectHideFlags: 0
@@ -812,6 +866,7 @@ GameObject:
   - component: {fileID: 797324914}
   - component: {fileID: 797324913}
   - component: {fileID: 797324912}
+  - component: {fileID: 797324915}
   m_Layer: 0
   m_Name: ZonaGatos
   m_TagString: Zona
@@ -828,8 +883,8 @@ Transform:
   m_GameObject: {fileID: 797324910}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -14.2, y: 0, z: -9.499999}
-  m_LocalScale: {x: 13, y: 1, z: 13}
+  m_LocalPosition: {x: -14.2, y: -1, z: -9.499999}
+  m_LocalScale: {x: 13, y: 3, z: 13}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 41894393}
@@ -906,6 +961,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 797324910}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &797324915
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 797324910}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &838272034
 GameObject:
   m_ObjectHideFlags: 0
@@ -1040,9 +1111,9 @@ MonoBehaviour:
   m_OverrideTileSize: 0
   m_TileSize: 256
   m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.16666667
+  m_VoxelSize: 0.13333334
   m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: fc35143d81bb3fb42b0a23f48dad69b6, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: 2ec79e1be6a175947b7ae3b58d325c02, type: 2}
   m_BuildHeightMesh: 0
 --- !u!1 &963194225
 GameObject:
@@ -1210,6 +1281,7 @@ GameObject:
   - component: {fileID: 1692117033}
   - component: {fileID: 1692117032}
   - component: {fileID: 1692117031}
+  - component: {fileID: 1692117034}
   m_Layer: 0
   m_Name: CheckIn
   m_TagString: Zona
@@ -1226,8 +1298,8 @@ Transform:
   m_GameObject: {fileID: 1692117029}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.5, y: 0, z: 9.4}
-  m_LocalScale: {x: 13, y: 1, z: 8}
+  m_LocalPosition: {x: 1.5, y: -1, z: 9.4}
+  m_LocalScale: {x: 13, y: 3, z: 8}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1717897478}
@@ -1304,6 +1376,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1692117029}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &1692117034
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1692117029}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.25, y: 0.25, z: 0.25}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1706217708
 GameObject:
   m_ObjectHideFlags: 0
@@ -1316,6 +1404,7 @@ GameObject:
   - component: {fileID: 1706217712}
   - component: {fileID: 1706217711}
   - component: {fileID: 1706217710}
+  - component: {fileID: 1706217713}
   m_Layer: 0
   m_Name: Checkout
   m_TagString: Zona
@@ -1332,8 +1421,8 @@ Transform:
   m_GameObject: {fileID: 1706217708}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.5, y: 0, z: 18.1}
-  m_LocalScale: {x: 13, y: 1, z: 8}
+  m_LocalPosition: {x: 1.5, y: -1, z: 18.1}
+  m_LocalScale: {x: 13, y: 3, z: 8}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 142633436}
@@ -1410,6 +1499,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1706217708}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!208 &1706217713
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1706217708}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &1717897477
 GameObject:
   m_ObjectHideFlags: 0
@@ -1436,7 +1541,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0.05, y: 0, z: 0}
-  m_LocalScale: {x: 0.07692308, y: 1, z: 0.125}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1692117030}

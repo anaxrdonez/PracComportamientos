@@ -4,26 +4,16 @@ using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
-    public GameObject clientePrefab, limpiadorPrefab;
-    public Transform puntoSpawnClientes;
-    public Transform[] puntosSpawnLimpiadores;
-    public Transform puntoCheckIn, salaEspera, salaEntrevista, zonaGatos, zonaPerros, checkout, salida, almacen;
-    public Transform[] puntosPatrulla, salas;
+    public GameObject clientePrefab;
+    public Transform puntoSpawnClientes, puntoCheckIn, salaEspera, salaEntrevista, zonaGatos, zonaPerros, checkout, salida;
 
-    private int maxClientes = 2, clientesActuales = 0, maxLimpiadores = 1;
-    private bool salaEntrevistaOcupada = false;
-    private Queue<ClienteBT> clientesEnEspera = new Queue<ClienteBT>(); // Cola de clientes esperando entrevista
+    private Queue<ClienteBT> colaCheckIn = new Queue<ClienteBT>();
+    private Queue<ClienteBT> colaSalaEspera = new Queue<ClienteBT>();
+
+    private bool checkInOcupado = false, entrevistaOcupada = false;
 
     void Start()
     {
-        // Generar limpiadores
-        for (int i = 0; i < maxLimpiadores; i++)
-        {
-            GameObject nuevoLimpiador = Instantiate(limpiadorPrefab, puntosSpawnLimpiadores[i].position, Quaternion.identity);
-            nuevoLimpiador.GetComponent<LimpiadorFSM>().InicializarLimpiador(almacen, puntosPatrulla, salas);
-        }
-
-        // Generar clientes
         StartCoroutine(GenerarClientes());
     }
 
@@ -33,86 +23,79 @@ public class GameManager : MonoBehaviour
         {
             yield return new WaitForSeconds(Random.Range(3f, 6f));
 
-            if (clientesActuales < maxClientes)
-            {
-                GameObject nuevoCliente = Instantiate(clientePrefab, puntoSpawnClientes.position, Quaternion.identity);
-                ClienteBT clienteScript = nuevoCliente.GetComponent<ClienteBT>();
-                clienteScript.InicializarCliente(puntoCheckIn, salaEspera, salaEntrevista, zonaGatos, zonaPerros, checkout, salida, this);
-                clientesActuales++;
-                clienteScript.OnClienteSalido += ClienteSalido;
+            GameObject nuevoCliente = Instantiate(clientePrefab, puntoSpawnClientes.position, Quaternion.identity);
+            ClienteBT clienteScript = nuevoCliente.GetComponent<ClienteBT>();
+            clienteScript.InicializarCliente(puntoCheckIn, salaEspera, salaEntrevista, zonaGatos, zonaPerros, checkout, salida, this);
 
-                // El Cliente siempre empieza por hacer Check-In
-                StartCoroutine(ClienteHacerCheckIn(clienteScript));
-            }
+            colaCheckIn.Enqueue(clienteScript);
+            RevisarCheckIn();
         }
     }
 
-    IEnumerator ClienteHacerCheckIn(ClienteBT cliente)
+    public IEnumerator ClienteEnCheckIn(ClienteBT cliente)
     {
-        yield return cliente.RealizarCheckIn();
+        while (checkInOcupado || colaCheckIn.Count == 0 || colaCheckIn.Peek() != cliente)
+            yield return null;
 
-        if (!salaEntrevistaOcupada)
+        Debug.Log(cliente.name + " moviéndose al Check-In...");
+        yield return cliente.IrA(puntoCheckIn);
+
+        while (cliente.DetectarZonaActual() != "CheckIn") // 🔥 Usar una función para acceder a detectarZona
+            yield return null;
+
+        Debug.Log(cliente.name + " llegó al Check-In. Ahora será atendido.");
+        checkInOcupado = true;
+        colaCheckIn.Dequeue();
+
+        yield return new WaitForSeconds(2f); // Simular proceso de Check-In
+
+        checkInOcupado = false;
+        cliente.MoverASalaEspera();
+        RevisarCheckIn();
+    }
+
+
+
+    private void RevisarCheckIn()
+    {
+        if (!checkInOcupado && colaCheckIn.Count > 0)
         {
-            cliente.IniciarEntrevista();
+            StartCoroutine(ClienteEnCheckIn(colaCheckIn.Peek()));
         }
-        else
+    }
+
+    public void ClienteEnSalaEspera(ClienteBT cliente)
+    {
+        colaSalaEspera.Enqueue(cliente);
+        RevisarSalaEspera();
+    }
+
+    private void RevisarSalaEspera()
+    {
+        if (!entrevistaOcupada && colaSalaEspera.Count > 0)
         {
-            StartCoroutine(EnviarClienteASalaEspera(cliente));
+            ClienteBT siguienteCliente = colaSalaEspera.Dequeue();
+            StartCoroutine(ClienteEnEntrevista(siguienteCliente));
         }
     }
 
-    IEnumerator EnviarClienteASalaEspera(ClienteBT cliente)
+    public IEnumerator ClienteEnEntrevista(ClienteBT cliente)
     {
-        yield return cliente.MoverASalaEspera();
-        AgregarClienteAEspera(cliente);
-    }
+        while (entrevistaOcupada)
+            yield return null;
 
-    public void AgregarClienteAEspera(ClienteBT cliente)
-    {
-        clientesEnEspera.Enqueue(cliente);
-        RevisarSalaDeEspera(); // 🔥 Si la Entrevista está libre, mover al siguiente cliente
-    }
-
-    public bool SalaEntrevistaOcupada()
-    {
-        return salaEntrevistaOcupada;
+        entrevistaOcupada = true;
+        cliente.IniciarEntrevista();
     }
 
     public void OcupaSalaEntrevista()
     {
-        salaEntrevistaOcupada = true;
+        entrevistaOcupada = true;
     }
 
     public void LiberaSalaEntrevista()
     {
-        salaEntrevistaOcupada = false;
-
-        if (clientesEnEspera.Count > 0)
-        {
-            ClienteBT siguienteCliente = clientesEnEspera.Dequeue();
-            StartCoroutine(MoverClienteAEntrevista(siguienteCliente));
-        }
-    }
-
-    // 🔥 Si hay clientes en la Sala de Espera y la Entrevista está libre, el primero pasa automáticamente.
-    private void RevisarSalaDeEspera()
-    {
-        if (!salaEntrevistaOcupada && clientesEnEspera.Count > 0)
-        {
-            ClienteBT siguienteCliente = clientesEnEspera.Dequeue();
-            StartCoroutine(MoverClienteAEntrevista(siguienteCliente));
-        }
-    }
-
-    private IEnumerator MoverClienteAEntrevista(ClienteBT cliente)
-    {
-        yield return cliente.SalirDeSalaEspera();
-        yield return cliente.IrAEntrevista();
-        cliente.IniciarEntrevista();
-    }
-
-    void ClienteSalido()
-    {
-        clientesActuales--;
+        entrevistaOcupada = false;
+        RevisarSalaEspera();
     }
 }
