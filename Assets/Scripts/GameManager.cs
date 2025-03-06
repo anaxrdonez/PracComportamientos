@@ -40,10 +40,10 @@ public class GameManager : MonoBehaviour
         Debug.Log(cliente.name + " moviéndose al Check-In...");
         yield return cliente.IrA(puntoCheckIn);
 
-        while (cliente.DetectarZonaActual() != "CheckIn") // 🔥 Usar una función para acceder a detectarZona
+        while (cliente.DetectarZonaActual() != "CheckIn")
             yield return null;
 
-        Debug.Log(cliente.name + " llegó al Check-In. Ahora será atendido.");
+        Debug.Log(cliente.name + " llegó al Check-In.");
         checkInOcupado = true;
         colaCheckIn.Dequeue();
 
@@ -53,8 +53,6 @@ public class GameManager : MonoBehaviour
         cliente.MoverASalaEspera();
         RevisarCheckIn();
     }
-
-
 
     private void RevisarCheckIn()
     {

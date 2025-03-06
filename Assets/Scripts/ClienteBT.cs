@@ -31,7 +31,7 @@ public class ClienteBT : MonoBehaviour
     void Start()
     {
         agente = GetComponent<NavMeshAgent>();
-        detectarZona = GetComponent<DetectarZona>(); 
+        detectarZona = GetComponent<DetectarZona>();
 
         if (agente == null)
         {
@@ -53,6 +53,7 @@ public class ClienteBT : MonoBehaviour
 
         StartCoroutine(EjecutarBehaviourTree());
     }
+
     public string DetectarZonaActual()
     {
         return detectarZona != null ? detectarZona.zonaActual : "FueraDeZona";
@@ -81,6 +82,10 @@ public class ClienteBT : MonoBehaviour
         yield return gameManager.ClienteEnCheckIn(this);
         Debug.Log(name + " se mueve al Check-In");
         yield return StartCoroutine(IrA(puntoCheckIn));
+
+        while (DetectarZonaActual() != "CheckIn")
+            yield return null;
+
         yield return new WaitForSeconds(2f);
         registrado = true;
     }
@@ -89,6 +94,10 @@ public class ClienteBT : MonoBehaviour
     {
         Debug.Log(name + " se mueve a la Sala de Espera");
         yield return StartCoroutine(IrA(salaEspera));
+
+        while (DetectarZonaActual() != "SalaEspera")
+            yield return null;
+
         enSalaEspera = true;
         gameManager.ClienteEnSalaEspera(this);
     }
@@ -98,7 +107,11 @@ public class ClienteBT : MonoBehaviour
         yield return gameManager.ClienteEnEntrevista(this);
         Debug.Log(name + " se mueve a la Entrevista");
         yield return StartCoroutine(IrA(salaEntrevista));
+
+        while (DetectarZonaActual() != "SalaEntrevista")
+            yield return null;
     }
+
     public void IniciarEntrevista()
     {
         StartCoroutine(ProcesoEntrevista());
@@ -108,8 +121,10 @@ public class ClienteBT : MonoBehaviour
     {
         gameManager.OcupaSalaEntrevista();
         yield return new WaitForSeconds(Random.Range(3f, 5f));
+
         aprobado = Random.value > 0.5f;
         quierePerro = Random.value > 0.5f;
+
         Debug.Log(name + " ha terminado la Entrevista. Aprobado: " + aprobado + ", Quiere Perro: " + quierePerro);
         gameManager.LiberaSalaEntrevista();
     }
@@ -119,6 +134,10 @@ public class ClienteBT : MonoBehaviour
         Transform zonaDestino = quierePerro ? zonaPerros : zonaGatos;
         Debug.Log(name + " se mueve a la zona de " + (quierePerro ? "Perros" : "Gatos"));
         yield return StartCoroutine(IrA(zonaDestino));
+
+        while (DetectarZonaActual() != (quierePerro ? "ZonaPerros" : "ZonaGatos"))
+            yield return null;
+
         yield return new WaitForSeconds(Random.Range(3f, 7f));
     }
 
@@ -132,7 +151,7 @@ public class ClienteBT : MonoBehaviour
 
         if (!agente.isOnNavMesh)
         {
-            Debug.LogError("❌ ERROR: Cliente NO está sobre un NavMesh. Verifica que el suelo es navegable.");
+            Debug.LogError("❌ ERROR: Cliente NO está sobre un NavMesh.");
             yield break;
         }
 
@@ -141,21 +160,12 @@ public class ClienteBT : MonoBehaviour
 
         Debug.Log(name + " moviéndose hacia: " + destino.name);
 
-        // Esperar hasta que el cliente llegue al destino
         while (agente.pathPending || agente.remainingDistance > agente.stoppingDistance)
-        {
-            if (!agente.hasPath || agente.pathStatus != NavMeshPathStatus.PathComplete)
-            {
-                Debug.LogError("❌ ERROR: " + name + " no puede encontrar un camino a " + destino.name);
-                yield break;
-            }
             yield return null;
-        }
 
         agente.isStopped = true;
         Debug.Log(name + " llegó a " + destino.name);
     }
-
 
     void SalirDelRefugio()
     {
