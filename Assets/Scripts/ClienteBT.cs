@@ -60,13 +60,15 @@ public class ClienteBT : MonoBehaviour
         if (aprobado)
         {
             yield return StartCoroutine(VisitarZonaAdopcion());
+            yield return StartCoroutine(IrA(checkout));
         }
         else
         {
             yield return StartCoroutine(IrA(checkout));
-            yield return StartCoroutine(IrA(salida));
-            SalirDelRefugio();
         }
+
+        yield return StartCoroutine(IrA(salida));
+        SalirDelRefugio();
     }
 
     IEnumerator EsperarCheckIn()
@@ -85,9 +87,9 @@ public class ClienteBT : MonoBehaviour
         while (DetectarZonaActual() != "SalaEspera")
             yield return null;
         enSalaEspera = true;
-        gameManager.ClienteEnSalaEspera(this);
+        colaEspera.Enqueue(this);
+        gameManager.RevisarSalaEspera();
     }
-
 
     IEnumerator EsperarEntrevista()
     {
@@ -108,6 +110,12 @@ public class ClienteBT : MonoBehaviour
 
     IEnumerator ProcesoEntrevista()
     {
+        if (DetectarZonaActual() != "SalaEntrevista")
+        {
+            Debug.LogError("❌ ERROR: Cliente intentó realizar la entrevista fuera de la Sala de Entrevista.");
+            yield break;
+        }
+
         yield return new WaitForSeconds(Random.Range(3f, 5f));
         aprobado = Random.value > 0.5f;
         quierePerro = Random.value > 0.5f;
@@ -115,16 +123,6 @@ public class ClienteBT : MonoBehaviour
         yield return new WaitForSeconds(1f);
         salaEntrevistaOcupada = false;
         gameManager.RevisarSalaEspera();
-        yield return StartCoroutine(SalirDeEntrevista());
-    }
-
-    IEnumerator SalirDeEntrevista()
-    {
-        yield return StartCoroutine(IrA(checkout));
-        while (DetectarZonaActual() != "Checkout")
-            yield return null;
-        yield return StartCoroutine(IrA(salida));
-        SalirDelRefugio();
     }
 
     IEnumerator VisitarZonaAdopcion()
@@ -152,10 +150,6 @@ public class ClienteBT : MonoBehaviour
             animalAsignado.transform.SetParent(transform);
             animalAsignado.transform.localPosition = new Vector3(0.5f, 0, 0);
         }
-
-        yield return StartCoroutine(IrA(checkout));
-        yield return StartCoroutine(IrA(salida));
-        SalirDelRefugio();
     }
 
     public IEnumerator IrA(Transform destino)
