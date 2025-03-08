@@ -28,7 +28,6 @@ public class GameManager : MonoBehaviour
         Debug.Log("Iniciando GameManager...");
         StartCoroutine(GenerarClientes());
 
-        // Generar 5 perros y 5 gatos en la zona de adopción
         for (int i = 0; i < 5; i++)
         {
             GameObject perro = Instantiate(perroPrefab, zonaPerros.position, Quaternion.identity);
@@ -75,15 +74,14 @@ public class GameManager : MonoBehaviour
     {
         if (!checkInOcupado && colaCheckIn.Count > 0)
         {
-            StartCoroutine(ClienteEnCheckIn(colaCheckIn.Peek()));
+            ClienteBT siguienteCliente = colaCheckIn.Dequeue();
+            StartCoroutine(ClienteEnCheckIn(siguienteCliente));
         }
     }
 
     public IEnumerator ClienteEnCheckIn(ClienteBT cliente)
     {
-        while (checkInOcupado || colaCheckIn.Count == 0 || colaCheckIn.Peek() != cliente)
-            yield return null;
-
+        checkInOcupado = true;
         Debug.Log(cliente.name + " moviéndose al Check-In...");
         yield return cliente.IrA(puntoCheckIn);
 
@@ -91,10 +89,7 @@ public class GameManager : MonoBehaviour
             yield return null;
 
         Debug.Log(cliente.name + " llegó al Check-In.");
-        checkInOcupado = true;
-        colaCheckIn.Dequeue();
-
-        yield return new WaitForSeconds(2f); // Simular proceso de Check-In
+        yield return new WaitForSeconds(2f);
 
         checkInOcupado = false;
         cliente.MoverASalaEspera();
@@ -107,7 +102,7 @@ public class GameManager : MonoBehaviour
         RevisarSalaEspera();
     }
 
-    private void RevisarSalaEspera()
+    public void RevisarSalaEspera()
     {
         if (!entrevistaOcupada && colaSalaEspera.Count > 0)
         {
@@ -119,19 +114,18 @@ public class GameManager : MonoBehaviour
     public IEnumerator ClienteEnEntrevista(ClienteBT cliente)
     {
         while (entrevistaOcupada)
-            yield return null; // Espera a que la entrevista esté libre
+            yield return null;
 
         entrevistaOcupada = true;
         Debug.Log(cliente.name + " se mueve a la Entrevista...");
+        yield return cliente.IrA(salaEntrevista);
 
-        yield return cliente.IrA(salaEntrevista); // 🔥 Espera hasta que realmente llegue
         while (cliente.DetectarZonaActual() != "SalaEntrevista")
             yield return null;
 
         Debug.Log(cliente.name + " llegó a la Sala de Entrevista.");
-        cliente.IniciarEntrevista(); // 🔥 La entrevista comienza SOLO cuando el cliente está presente
+        cliente.IniciarEntrevista();
     }
-
 
     public void OcupaSalaEntrevista()
     {
@@ -158,7 +152,7 @@ public class GameManager : MonoBehaviour
             gatosDisponibles.RemoveAt(0);
             return animal;
         }
-        return null; // No hay animales disponibles
+        return null;
     }
 
     public void LiberarAnimal(GameObject animal)

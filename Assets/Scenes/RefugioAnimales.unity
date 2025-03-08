@@ -147,7 +147,7 @@ Transform:
   m_GameObject: {fileID: 41894392}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.042, y: 0, z: -0.036}
+  m_LocalPosition: {x: -0.11, y: 0, z: -0.036}
   m_LocalScale: {x: 0.07692308, y: 1, z: 0.07692308}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -737,6 +737,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   clientePrefab: {fileID: 5253777330552791220, guid: ea80c469617de6e4781e71998addfcfa, type: 3}
+  perroPrefab: {fileID: 6039943368737488915, guid: 4c1d31f762a74f443b800e2b550a210a, type: 3}
+  gatoPrefab: {fileID: 8407799148742324440, guid: 60330b61dc6b4764c8991e16e6325937, type: 3}
   puntoSpawnClientes: {fileID: 1445140417}
   puntoCheckIn: {fileID: 1717897478}
   salaEspera: {fileID: 1839234012}
@@ -745,8 +747,7 @@ MonoBehaviour:
   zonaPerros: {fileID: 2054215575}
   checkout: {fileID: 142633436}
   salida: {fileID: 1445140417}
-  perroPrefab: {fileID: 6039943368737488915, guid: 4c1d31f762a74f443b800e2b550a210a, type: 3}
-  gatoPrefab: {fileID: 8407799148742324440, guid: 60330b61dc6b4764c8991e16e6325937, type: 3}
+  maxClientes: 3
 --- !u!4 &648586352
 Transform:
   m_ObjectHideFlags: 0
@@ -1604,7 +1605,7 @@ Transform:
   m_GameObject: {fileID: 2054215574}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.129, y: 0, z: 0.022}
+  m_LocalPosition: {x: 0, y: 0, z: 0.022}
   m_LocalScale: {x: 0.07692308, y: 1, z: 0.07692308}
   m_ConstrainProportionsScale: 0
   m_Children: []
