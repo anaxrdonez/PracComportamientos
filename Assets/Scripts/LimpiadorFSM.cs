@@ -1,95 +1,124 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 using System.Collections.Generic;
 
 public class LimpiadorFSM : MonoBehaviour
 {
-    public enum EstadoLimpiador { Patrullando, IrALimpiar, Limpiando, Reponiendo }
-    public EstadoLimpiador estadoActual;
+    public enum EstadoLimpiador { Patrullando, Limpiando, Reponiendo }
+    public EstadoLimpiador EstadoActual { get; private set; } = EstadoLimpiador.Patrullando;
+
     private NavMeshAgent agente;
-
+    private GameManager gameManager;
     private Transform almacen;
-    private List<Transform> puntosPatrulla = new List<Transform>();
-    private List<Transform> salas = new List<Transform>();
-    private Dictionary<Transform, int> salasSucias = new Dictionary<Transform, int>();
+    private List<Transform> salas;
+    private Transform salaObjetivo;
 
-    private int puntoActual = 0;
-
-    public void InicializarLimpiador(Transform store, Transform[] patrulla, Transform[] habitaciones)
+    public void InicializarLimpiador(Transform almacenRef, List<Transform> salasReferencias, GameManager manager)
     {
-        almacen = store;
-        puntosPatrulla.AddRange(patrulla);
-        salas.AddRange(habitaciones);
-        foreach (var sala in salas)
-        {
-            salasSucias[sala] = 0;
-        }
+        almacen = almacenRef;
+        salas = salasReferencias;
+        gameManager = manager;
     }
 
     void Start()
     {
         agente = GetComponent<NavMeshAgent>();
-        estadoActual = EstadoLimpiador.Patrullando;
-        IrA(puntosPatrulla[puntoActual]);
+
+        if (agente == null)
+        {
+            Debug.LogError("❌ ERROR: NavMeshAgent no asignado en " + name);
+            return;
+        }
+
+        if (salas == null || salas.Count == 0 || almacen == null)
+        {
+            Debug.LogError("❌ ERROR: No se han asignado salas o almacén en " + name);
+            return;
+        }
+
+        StartCoroutine(FSM());
     }
 
-    void Update()
+    private IEnumerator FSM()
     {
-        switch (estadoActual)
+        while (true)
         {
-            case EstadoLimpiador.Patrullando:
-                if (HaLlegado() && puntosPatrulla.Count > 0)
-                {
-                    puntoActual = (puntoActual + 1) % puntosPatrulla.Count;
-                    IrA(puntosPatrulla[puntoActual]);
-                }
-                foreach (var sala in salasSucias)
-                {
-                    if (sala.Value >= 3)
-                    {
-                        estadoActual = EstadoLimpiador.IrALimpiar;
-                        IrA(sala.Key);
-                        break;
-                    }
-                }
-                break;
-            case EstadoLimpiador.IrALimpiar:
-                if (HaLlegado())
-                {
-                    estadoActual = EstadoLimpiador.Limpiando;
-                    Invoke("FinalizarLimpieza", 3f);
-                }
-                break;
-            case EstadoLimpiador.Limpiando:
-                break;
-            case EstadoLimpiador.Reponiendo:
-                if (HaLlegado())
-                {
-                    estadoActual = EstadoLimpiador.Patrullando;
-                    IrA(puntosPatrulla[puntoActual]);
-                }
-                break;
+            switch (EstadoActual)
+            {
+                case EstadoLimpiador.Patrullando:
+                    yield return StartCoroutine(Patrullar());
+                    break;
+
+                case EstadoLimpiador.Limpiando:
+                    yield return StartCoroutine(LimpiarSala(salaObjetivo));
+                    break;
+
+                case EstadoLimpiador.Reponiendo:
+                    yield return StartCoroutine(ReponerUtensilios());
+                    break;
+            }
+
+            yield return null;
         }
     }
 
-    void IrA(Transform destino)
+    private IEnumerator Patrullar()
     {
+        while (EstadoActual == EstadoLimpiador.Patrullando)
+        {
+            Transform destino = salas[Random.Range(0, salas.Count)];
+            yield return StartCoroutine(IrA(destino));
+
+            yield return new WaitForSeconds(Random.Range(5f, 10f));
+        }
+    }
+
+    public void IrALimpiar(Transform sala)
+    {
+        if (EstadoActual == EstadoLimpiador.Limpiando) return;
+
+        salaObjetivo = sala;
+        EstadoActual = EstadoLimpiador.Limpiando;
+    }
+
+    private IEnumerator LimpiarSala(Transform sala)
+    {
+        Debug.Log(name + " moviéndose a limpiar " + sala.name);
+        yield return StartCoroutine(IrA(sala));
+
+        Debug.Log(name + " limpiando " + sala.name);
+        yield return new WaitForSeconds(5f);
+
+        gameManager.SalaLimpia(sala);
+        EstadoActual = EstadoLimpiador.Reponiendo;
+    }
+
+    private IEnumerator ReponerUtensilios()
+    {
+        Debug.Log(name + " yendo al almacén a reponer");
+        yield return StartCoroutine(IrA(almacen));
+
+        Debug.Log(name + " reponiendo utensilios...");
+        yield return new WaitForSeconds(3f);
+
+        EstadoActual = EstadoLimpiador.Patrullando;
+    }
+
+    private IEnumerator IrA(Transform destino)
+    {
+        if (destino == null || agente == null || !agente.isOnNavMesh)
+        {
+            Debug.LogError("❌ ERROR: Destino inválido en " + name);
+            yield break;
+        }
+
+        agente.isStopped = false;
         agente.SetDestination(destino.position);
-    }
 
-    bool HaLlegado()
-    {
-        return agente.isOnNavMesh && !agente.pathPending && agente.remainingDistance <= agente.stoppingDistance;
-    }
+        while (agente.pathPending || agente.remainingDistance > agente.stoppingDistance)
+            yield return null;
 
-    void FinalizarLimpieza()
-    {
-        foreach (var sala in salasSucias.Keys)
-        {
-            salasSucias[sala] = 0;
-        }
-        estadoActual = EstadoLimpiador.Reponiendo;
-        IrA(almacen);
+        agente.isStopped = true;
     }
 }

@@ -307,6 +307,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1706217709}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &169832928
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 169832929}
+  m_Layer: 0
+  m_Name: PatrullaLimpieza1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &169832929
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 169832928}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -18.9, y: 0, z: 0.58}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &258736916
 GameObject:
   m_ObjectHideFlags: 0
@@ -739,6 +770,7 @@ MonoBehaviour:
   clientePrefab: {fileID: 5253777330552791220, guid: ea80c469617de6e4781e71998addfcfa, type: 3}
   perroPrefab: {fileID: 6039943368737488915, guid: 4c1d31f762a74f443b800e2b550a210a, type: 3}
   gatoPrefab: {fileID: 8407799148742324440, guid: 60330b61dc6b4764c8991e16e6325937, type: 3}
+  limpiadorPrefab: {fileID: 8491072135756154116, guid: 23d005d9a7f02424cb1f14a5f904da30, type: 3}
   puntoSpawnClientes: {fileID: 1445140417}
   puntoCheckIn: {fileID: 1717897478}
   salaEspera: {fileID: 1839234012}
@@ -747,7 +779,19 @@ MonoBehaviour:
   zonaPerros: {fileID: 2054215575}
   checkout: {fileID: 142633436}
   salida: {fileID: 1445140417}
+  puntoSpawnLimpiadores: {fileID: 1445140417}
+  almacen: {fileID: 1057088732}
+  puntosPatrulla:
+  - {fileID: 169832929}
+  - {fileID: 1103040278}
+  salas:
+  - {fileID: 1839234012}
+  - {fileID: 594802019}
+  - {fileID: 41894393}
+  - {fileID: 2054215575}
+  - {fileID: 142633436}
   maxClientes: 3
+  numLimpiadores: 2
 --- !u!4 &648586352
 Transform:
   m_ObjectHideFlags: 0
@@ -837,7 +881,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_BoundingSphereOverride: {x: 1.02e-43, y: 8.5e-44, z: 7.312e-42, w: 6.816e-42}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -1241,6 +1285,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 88486562}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1103040277
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1103040278}
+  m_Layer: 0
+  m_Name: PatrullaLimpieza2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1103040278
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1103040277}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 21.1, y: 0, z: -0.01}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1445140416
 GameObject:
   m_ObjectHideFlags: 0
@@ -1627,3 +1702,5 @@ SceneRoots:
   - {fileID: 838272038}
   - {fileID: 648586352}
   - {fileID: 88486562}
+  - {fileID: 169832929}
+  - {fileID: 1103040278}
