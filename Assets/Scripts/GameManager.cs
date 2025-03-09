@@ -59,6 +59,7 @@ public class GameManager : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(Random.Range(3f, 6f));
+            Debug.Log("Intentando crear un cliente...");
 
             if (clientesActuales < maxClientes)
             {
@@ -72,7 +73,16 @@ public class GameManager : MonoBehaviour
                     clienteScript.OnClienteSalido += ClienteSalido;
                     colaCheckIn.Enqueue(clienteScript);
                     RevisarCheckIn();
+                    Debug.Log("Cliente creado exitosamente.");
                 }
+                else
+                {
+                    Debug.LogError("❌ ERROR: El prefab de Cliente no tiene el script ClienteBT adjunto.");
+                }
+            }
+            else
+            {
+                Debug.Log("No se generan más clientes, máximo alcanzado.");
             }
         }
     }
@@ -85,7 +95,7 @@ public class GameManager : MonoBehaviour
             LimpiadorFSM limpiadorScript = nuevoLimpiador.GetComponent<LimpiadorFSM>();
             if (limpiadorScript != null)
             {
-                limpiadorScript.InicializarLimpiador(almacen, salas, this);
+                limpiadorScript.InicializarLimpiador(almacen, puntosPatrulla, salas, this);
                 limpiadores.Add(limpiadorScript);
             }
         }
@@ -97,9 +107,12 @@ public class GameManager : MonoBehaviour
         {
             yield return new WaitForSeconds(30f);
             Transform salaSucia = salas[Random.Range(0, salas.Count)];
-            estadoSalas[salaSucia] = true;
-            Debug.Log("⚠️ La sala " + salaSucia.name + " se ha ensuciado.");
-            AsignarLimpiadorASala(salaSucia);
+            if (!estadoSalas[salaSucia]) // Solo ensuciar si está limpia
+            {
+                estadoSalas[salaSucia] = true;
+                Debug.Log("⚠️ La sala " + salaSucia.name + " se ha ensuciado.");
+                AsignarLimpiadorASala(salaSucia);
+            }
         }
     }
 
@@ -115,12 +128,15 @@ public class GameManager : MonoBehaviour
     public IEnumerator ClienteEnCheckIn(ClienteBT cliente)
     {
         checkInOcupado = true;
+        Debug.Log(cliente.name + " moviéndose al Check-In...");
         yield return cliente.IrA(puntoCheckIn);
 
         while (cliente.DetectarZonaActual() != "CheckIn")
             yield return null;
 
+        Debug.Log(cliente.name + " llegó al Check-In.");
         yield return new WaitForSeconds(2f);
+
         checkInOcupado = false;
         cliente.MoverASalaEspera();
         RevisarCheckIn();
@@ -147,11 +163,13 @@ public class GameManager : MonoBehaviour
             yield return null;
 
         entrevistaOcupada = true;
+        Debug.Log(cliente.name + " se mueve a la Entrevista...");
         yield return cliente.IrA(salaEntrevista);
 
         while (cliente.DetectarZonaActual() != "SalaEntrevista")
             yield return null;
 
+        Debug.Log(cliente.name + " llegó a la Sala de Entrevista.");
         cliente.IniciarEntrevista();
     }
 
@@ -213,6 +231,7 @@ public class GameManager : MonoBehaviour
         if (limpiadorMasCercano != null)
         {
             limpiadorMasCercano.IrALimpiar(sala);
+            estadoSalas[sala] = false; // Marcar sala como en proceso de limpieza
         }
     }
 
