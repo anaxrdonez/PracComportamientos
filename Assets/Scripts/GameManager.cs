@@ -223,17 +223,25 @@ public class GameManager : MonoBehaviour
     {
         if (!estadoSalas[sala]) return;
 
-        LimpiadorFSM limpiadorMasCercano = limpiadores
+        // Seleccionar un limpiador aleatorio entre los que están patrullando
+        List<LimpiadorFSM> limpiadoresDisponibles = limpiadores
             .Where(l => l.EstadoActual == LimpiadorFSM.EstadoLimpiador.Patrullando)
-            .OrderBy(l => Vector3.Distance(l.transform.position, sala.position))
-            .FirstOrDefault();
+            .ToList();
 
-        if (limpiadorMasCercano != null)
+        if (limpiadoresDisponibles.Count > 0)
         {
-            limpiadorMasCercano.IrALimpiar(sala);
+            LimpiadorFSM limpiadorAsignado = limpiadoresDisponibles[Random.Range(0, limpiadoresDisponibles.Count)];
+            limpiadorAsignado.IrALimpiar(sala);
             estadoSalas[sala] = false; // Marcar sala como en proceso de limpieza
         }
     }
+
+    public List<LimpiadorFSM> ObtenerLimpiadores()
+    {
+        return limpiadores;
+    }
+
+
 
     public void SalaLimpia(Transform sala)
     {

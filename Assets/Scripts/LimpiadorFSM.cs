@@ -27,11 +27,14 @@ public class LimpiadorFSM : MonoBehaviour
     void Start()
     {
         agente = GetComponent<NavMeshAgent>();
+
         if (agente == null)
         {
             Debug.LogError("❌ ERROR: NavMeshAgent no asignado en " + name);
             return;
         }
+
+        agente.autoBraking = false; // 🔹 Permite que el limpiador no se detenga completamente en cada destino
         StartCoroutine(FSM());
     }
 
@@ -44,9 +47,11 @@ public class LimpiadorFSM : MonoBehaviour
                 case EstadoLimpiador.Patrullando:
                     yield return StartCoroutine(Patrullar());
                     break;
+
                 case EstadoLimpiador.Limpiando:
                     yield return StartCoroutine(LimpiarSala());
                     break;
+
                 case EstadoLimpiador.Reponiendo:
                     yield return StartCoroutine(ReponerUtensilios());
                     break;
@@ -59,8 +64,11 @@ public class LimpiadorFSM : MonoBehaviour
         while (EstadoActual == EstadoLimpiador.Patrullando)
         {
             Transform destino = puntosPatrulla[Random.Range(0, puntosPatrulla.Count)];
+
             yield return StartCoroutine(IrA(destino));
-            yield return new WaitForSeconds(Random.Range(5f, 10f));
+
+            // 🔹 Agregar un pequeño retraso aleatorio para evitar sincronización exacta entre limpiadores
+            yield return new WaitForSeconds(Random.Range(0.2f, 0.8f));
         }
     }
 
@@ -79,9 +87,16 @@ public class LimpiadorFSM : MonoBehaviour
         yield return new WaitForSeconds(5f);
         gameManager.SalaLimpia(salaObjetivo);
         salasLimpias++;
-        EstadoActual = salasLimpias >= 2 ? EstadoLimpiador.Reponiendo : EstadoLimpiador.Patrullando;
-        if (EstadoActual == EstadoLimpiador.Reponiendo)
+
+        if (salasLimpias >= 2)
+        {
+            EstadoActual = EstadoLimpiador.Reponiendo;
             salasLimpias = 0;
+        }
+        else
+        {
+            EstadoActual = EstadoLimpiador.Patrullando;
+        }
     }
 
     private IEnumerator ReponerUtensilios()
@@ -105,6 +120,6 @@ public class LimpiadorFSM : MonoBehaviour
         while (agente.pathPending || agente.remainingDistance > agente.stoppingDistance)
             yield return null;
 
-        agente.isStopped = true;
+        agente.isStopped = false; // 🔹 Asegura que no se detenga completamente y continúe moviéndose
     }
 }
