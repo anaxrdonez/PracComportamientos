@@ -791,7 +791,7 @@ MonoBehaviour:
   - {fileID: 2054215575}
   - {fileID: 142633436}
   maxClientes: 3
-  numLimpiadores: 4
+  numLimpiadores: 5
 --- !u!4 &648586352
 Transform:
   m_ObjectHideFlags: 0

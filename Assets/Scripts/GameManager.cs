@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.AI;
+
 
 public class GameManager : MonoBehaviour
 {
@@ -93,13 +95,23 @@ public class GameManager : MonoBehaviour
         {
             GameObject nuevoLimpiador = Instantiate(limpiadorPrefab, puntoSpawnLimpiadores.position, Quaternion.identity);
             LimpiadorFSM limpiadorScript = nuevoLimpiador.GetComponent<LimpiadorFSM>();
+
             if (limpiadorScript != null)
             {
                 limpiadorScript.InicializarLimpiador(almacen, puntosPatrulla, salas, this);
+
+                // 🔹 Asignar prioridad en NavMeshAgent
+                NavMeshAgent agente = nuevoLimpiador.GetComponent<NavMeshAgent>();
+                if (agente != null)
+                {
+                    agente.avoidancePriority = Random.Range(30, 70); // 🔹 Asigna una prioridad aleatoria
+                }
+
                 limpiadores.Add(limpiadorScript);
             }
         }
     }
+
 
     IEnumerator ControlSuciedadSalas()
     {
@@ -235,13 +247,6 @@ public class GameManager : MonoBehaviour
             estadoSalas[sala] = false; // Marcar sala como en proceso de limpieza
         }
     }
-
-    public List<LimpiadorFSM> ObtenerLimpiadores()
-    {
-        return limpiadores;
-    }
-
-
 
     public void SalaLimpia(Transform sala)
     {
