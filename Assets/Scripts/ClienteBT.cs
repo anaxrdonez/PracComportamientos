@@ -38,7 +38,7 @@ public class ClienteBT : MonoBehaviour
 
         if (agente == null || !agente.isOnNavMesh || gameManager == null)
         {
-            Debug.LogError("❌ ERROR: Cliente no está correctamente configurado.");
+            Debug.LogError(" ERROR: Cliente no está correctamente configurado.");
             return;
         }
 
@@ -112,7 +112,7 @@ public class ClienteBT : MonoBehaviour
     {
         if (DetectarZonaActual() != "SalaEntrevista")
         {
-            Debug.LogError("❌ ERROR: Cliente intentó realizar la entrevista fuera de la Sala de Entrevista.");
+            Debug.LogError(" ERROR: Cliente intentó realizar la entrevista fuera de la Sala de Entrevista.");
             yield break;
         }
 
@@ -131,7 +131,7 @@ public class ClienteBT : MonoBehaviour
 
         if (zonaDestino == null)
         {
-            Debug.LogError("❌ ERROR: La zona de adopción es NULL. Verifica que los puntos están asignados en GameManager.");
+            Debug.LogError(" ERROR: La zona de adopción es NULL. Verifica que los puntos están asignados en GameManager.");
             yield break;
         }
 
@@ -156,7 +156,7 @@ public class ClienteBT : MonoBehaviour
     {
         if (destino == null || agente == null || !agente.isOnNavMesh)
         {
-            Debug.LogError("❌ ERROR: Destino inválido en ClienteBT.");
+            Debug.LogError(" ERROR: Destino inválido en ClienteBT.");
             yield break;
         }
 

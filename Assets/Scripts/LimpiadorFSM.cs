@@ -30,11 +30,11 @@ public class LimpiadorFSM : MonoBehaviour
 
         if (agente == null)
         {
-            Debug.LogError("❌ ERROR: NavMeshAgent no asignado en " + name);
+            Debug.LogError("ERROR: NavMeshAgent no asignado en " + name);
             return;
         }
 
-        agente.autoBraking = false; // 🔹 Permite que el limpiador no se detenga completamente en cada destino
+        agente.autoBraking = false; 
         StartCoroutine(FSM());
     }
 
@@ -67,7 +67,6 @@ public class LimpiadorFSM : MonoBehaviour
 
             yield return StartCoroutine(IrA(destino));
 
-            // 🔹 Agregar un pequeño retraso aleatorio para evitar sincronización exacta entre limpiadores
             yield return new WaitForSeconds(Random.Range(0.2f, 0.8f));
         }
     }
@@ -120,6 +119,6 @@ public class LimpiadorFSM : MonoBehaviour
         while (agente.pathPending || agente.remainingDistance > agente.stoppingDistance)
             yield return null;
 
-        agente.isStopped = false; // 🔹 Asegura que no se detenga completamente y continúe moviéndose
+        agente.isStopped = false; 
     }
 }

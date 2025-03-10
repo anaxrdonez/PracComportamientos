@@ -45,7 +45,7 @@ public class GameManager : MonoBehaviour
         StartCoroutine(ControlSuciedadSalas());
 
         foreach (var sala in salas)
-            estadoSalas[sala] = false; // Todas las salas empiezan limpias
+            estadoSalas[sala] = false; 
 
         for (int i = 0; i < 5; i++)
         {
@@ -79,7 +79,7 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogError("❌ ERROR: El prefab de Cliente no tiene el script ClienteBT adjunto.");
+                    Debug.LogError(" ERROR: El prefab de Cliente no tiene el script ClienteBT adjunto.");
                 }
             }
             else
@@ -100,11 +100,11 @@ public class GameManager : MonoBehaviour
             {
                 limpiadorScript.InicializarLimpiador(almacen, puntosPatrulla, salas, this);
 
-                // 🔹 Asignar prioridad en NavMeshAgent
+                // Asignar prioridad en NavMeshAgent
                 NavMeshAgent agente = nuevoLimpiador.GetComponent<NavMeshAgent>();
                 if (agente != null)
                 {
-                    agente.avoidancePriority = Random.Range(30, 70); // 🔹 Asigna una prioridad aleatoria
+                    agente.avoidancePriority = Random.Range(30, 70); // Asigna una prioridad aleatoria
                 }
 
                 limpiadores.Add(limpiadorScript);
