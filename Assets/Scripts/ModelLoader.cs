@@ -2,21 +2,37 @@
 
 public class ModelLoader : MonoBehaviour
 {
-    [Header("Modelos de Cliente")]
-    public GameObject[] modelosCliente; // Array con los 3 modelos diferentes
+    public GameObject[] modelos;
     private GameObject modeloActual;
 
     void Start()
     {
-        if (modelosCliente.Length == 0)
+        CargarModeloAleatorio();
+    }
+
+    void CargarModeloAleatorio()
+    {
+        if (modelos.Length == 0)
         {
-            Debug.LogError("❌ ERROR: No hay modelos asignados en el ModelLoader");
+            Debug.LogError("❌ No hay modelos asignados en ModelLoader.");
             return;
         }
 
-        // Seleccionar un modelo aleatorio
-        int indice = Random.Range(0, modelosCliente.Length);
-        modeloActual = Instantiate(modelosCliente[indice], transform);
-        modeloActual.transform.localPosition = Vector3.zero; // Asegurar que el modelo se coloque correctamente
+        if (modeloActual != null)
+        {
+            Destroy(modeloActual);
+        }
+
+        int index = Random.Range(0, modelos.Length);
+        modeloActual = Instantiate(modelos[index], transform);
+
+        // 🔹 Ajustar posición si el modelo aparece muy arriba
+        modeloActual.transform.localPosition = new Vector3(0, -1f, 0);  // Ajusta el "-1f" según sea necesario
+
+        // 🔹 Rotarlo para que mire en la dirección correcta
+        modeloActual.transform.localRotation = Quaternion.Euler(0, 0, 0); // Ajusta el "180" si sigue mal
+
+        // 🔹 Asegurar que el modelo no afecte la escala
+        modeloActual.transform.localScale = Vector3.one;
     }
 }
