@@ -73,7 +73,6 @@ public class ClienteBT : MonoBehaviour
 
     IEnumerator EsperarCheckIn()
     {
-        yield return gameManager.ClienteEnCheckIn(this);
         yield return StartCoroutine(IrA(puntoCheckIn));
         while (DetectarZonaActual() != "CheckIn")
             yield return null;

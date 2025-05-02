@@ -73,10 +73,15 @@ public class GameManager : MonoBehaviour
                     clienteScript.InicializarCliente(puntoCheckIn, salaEspera, salaEntrevista, zonaGatos, zonaPerros, checkout, salida, this);
                     clientesActuales++;
                     clienteScript.OnClienteSalido += ClienteSalido;
-                    colaCheckIn.Enqueue(clienteScript);
-                    RevisarCheckIn();
-                    Debug.Log("Cliente creado exitosamente.");
+
+                    // Nuevo: encontrar y notificar al recepcionista
+                    RecepcionistaFSM recepcionista = FindObjectOfType<RecepcionistaFSM>();
+                    if (recepcionista != null)
+                        recepcionista.ClienteLlega(clienteScript);
+
+                    Debug.Log("Cliente creado y enviado al recepcionista.");
                 }
+
                 else
                 {
                     Debug.LogError(" ERROR: El prefab de Cliente no tiene el script ClienteBT adjunto.");
@@ -128,31 +133,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void RevisarCheckIn()
-    {
-        if (!checkInOcupado && colaCheckIn.Count > 0)
-        {
-            ClienteBT siguienteCliente = colaCheckIn.Dequeue();
-            StartCoroutine(ClienteEnCheckIn(siguienteCliente));
-        }
-    }
 
-    public IEnumerator ClienteEnCheckIn(ClienteBT cliente)
-    {
-        checkInOcupado = true;
-        Debug.Log(cliente.name + " moviéndose al Check-In...");
-        yield return cliente.IrA(puntoCheckIn);
 
-        while (cliente.DetectarZonaActual() != "CheckIn")
-            yield return null;
-
-        Debug.Log(cliente.name + " llegó al Check-In.");
-        yield return new WaitForSeconds(2f);
-
-        checkInOcupado = false;
-        cliente.MoverASalaEspera();
-        RevisarCheckIn();
-    }
+    
 
     public void ClienteEnSalaEspera(ClienteBT cliente)
     {
