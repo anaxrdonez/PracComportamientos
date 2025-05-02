@@ -1641,7 +1641,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2725162522574613967, guid: b4235d9df06b17d498218a340b679137, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 862810066}
   m_SourcePrefab: {fileID: 100100000, guid: b4235d9df06b17d498218a340b679137, type: 3}
 --- !u!4 &571116491 stripped
 Transform:
@@ -2051,21 +2054,6 @@ MonoBehaviour:
   - {fileID: 142633436}
   maxClientes: 4
   numLimpiadores: 3
-  materialesPerro:
-  - {fileID: 2100000, guid: f6730b960ba6c914e9141395fc93249f, type: 2}
-  - {fileID: 2100000, guid: 479f6d30f324b8f49949fcc6dfdb289b, type: 2}
-  - {fileID: 2100000, guid: 16301c8556c91ff448de26f69ee2bff6, type: 2}
-  - {fileID: 2100000, guid: 16301c8556c91ff448de26f69ee2bff6, type: 2}
-  - {fileID: 2100000, guid: 8fd192304df88db499eedb3456dc6d67, type: 2}
-  - {fileID: 2100000, guid: 38ffbdfed868f6846b538095ce0ba05f, type: 2}
-  materialesGato:
-  - {fileID: 2100000, guid: 7767c9630a826a947a8d5621273f3173, type: 2}
-  - {fileID: 2100000, guid: f6730b960ba6c914e9141395fc93249f, type: 2}
-  - {fileID: 2100000, guid: a170b2dc65d54ce4d959d38806c6326a, type: 2}
-  - {fileID: 2100000, guid: 33d13850ce81ea14290c173044bcaf2a, type: 2}
-  - {fileID: 2100000, guid: 16301c8556c91ff448de26f69ee2bff6, type: 2}
-  - {fileID: 2100000, guid: 8fd192304df88db499eedb3456dc6d67, type: 2}
-  - {fileID: 2100000, guid: 38ffbdfed868f6846b538095ce0ba05f, type: 2}
 --- !u!4 &648586352
 Transform:
   m_ObjectHideFlags: 0
@@ -2923,6 +2911,24 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4917993146247128472, guid: e3817462290a1744191b575ab6095c01, type: 3}
   m_PrefabInstance: {fileID: 1511808230470800170}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &862810064 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2725162522574613967, guid: b4235d9df06b17d498218a340b679137, type: 3}
+  m_PrefabInstance: {fileID: 563179612}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &862810066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 862810064}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6425895841411f46b9aaf6865e857bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  puntoRecepcion: {fileID: 1717897478}
 --- !u!4 &872591797 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4917993146247128472, guid: e3817462290a1744191b575ab6095c01, type: 3}

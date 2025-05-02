@@ -1,23 +1,231 @@
-﻿using UnityEngine;
-using UnityEngine.AI;
-using System.Collections;
+﻿// ClienteBT.cs - actualizado con NodoCondicional para adopción
+using System;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AI;
+
+public enum NodoResultado
+{
+    Exito,
+    Fallo,
+    Ejecutando
+}
+
+public abstract class NodoBT
+{
+    public abstract NodoResultado Tick();
+}
+
+public class NodoSecuencia : NodoBT
+{
+    private readonly List<NodoBT> hijos;
+    private int indiceActual = 0;
+
+    public NodoSecuencia(List<NodoBT> hijos)
+    {
+        this.hijos = hijos;
+    }
+
+    public override NodoResultado Tick()
+    {
+        while (indiceActual < hijos.Count)
+        {
+            var resultado = hijos[indiceActual].Tick();
+            if (resultado == NodoResultado.Ejecutando) return NodoResultado.Ejecutando;
+            if (resultado == NodoResultado.Fallo)
+            {
+                indiceActual = 0;
+                return NodoResultado.Fallo;
+            }
+            indiceActual++;
+        }
+        indiceActual = 0;
+        return NodoResultado.Exito;
+    }
+}
+
+public class NodoAccion : NodoBT
+{
+    private readonly Func<NodoResultado> accion;
+
+    public NodoAccion(Func<NodoResultado> accion)
+    {
+        this.accion = accion;
+    }
+
+    public override NodoResultado Tick() => accion();
+}
+
+public class NodoEsperarZona : NodoBT
+{
+    private readonly ClienteBT cliente;
+    private readonly string zonaObjetivo;
+
+    public NodoEsperarZona(ClienteBT cliente, string zona)
+    {
+        this.cliente = cliente;
+        zonaObjetivo = zona;
+    }
+
+    public override NodoResultado Tick()
+    {
+        return cliente.DetectarZonaActual() == zonaObjetivo ? NodoResultado.Exito : NodoResultado.Ejecutando;
+    }
+}
+
+public class NodoEsperarCheckInConfirmado : NodoBT
+{
+    private ClienteBT cliente;
+
+    public NodoEsperarCheckInConfirmado(ClienteBT cliente)
+    {
+        this.cliente = cliente;
+    }
+
+    public override NodoResultado Tick()
+    {
+        return cliente.CheckInConfirmado() ? NodoResultado.Exito : NodoResultado.Ejecutando;
+    }
+}
+
+public class NodoColaRecepcion : NodoBT
+{
+    private readonly ClienteBT cliente;
+    private readonly GameManager gameManager;
+    private bool registrado = false;
+
+    public NodoColaRecepcion(ClienteBT cliente, GameManager gameManager)
+    {
+        this.cliente = cliente;
+        this.gameManager = gameManager;
+    }
+
+    public override NodoResultado Tick()
+    {
+        if (!registrado)
+        {
+            gameManager.ClienteARecepcion(cliente);
+            registrado = true;
+        }
+        return gameManager.ClientePuedeSerRegistrado(cliente)
+            ? NodoResultado.Exito
+            : NodoResultado.Ejecutando;
+    }
+}
+
+public class NodoEntrevista : NodoBT
+{
+    private readonly ClienteBT cliente;
+    private bool hecha = false;
+    private float tiempo;
+
+    public NodoEntrevista(ClienteBT cliente)
+    {
+        this.cliente = cliente;
+    }
+
+    public override NodoResultado Tick()
+    {
+        if (hecha) return NodoResultado.Exito;
+        tiempo += Time.deltaTime;
+        if (tiempo >= 4f)
+        {
+            cliente.RealizarResultadoEntrevista();
+            cliente.LiberarSalaEntrevista();  
+            hecha = true;
+            return NodoResultado.Exito;
+        }
+
+        return NodoResultado.Ejecutando;
+    }
+}
+
+public class NodoAdopcion : NodoBT
+{
+    private readonly ClienteBT cliente;
+    private bool hecho = false;
+    private float tiempo;
+
+    public NodoAdopcion(ClienteBT cliente)
+    {
+        this.cliente = cliente;
+    }
+
+    public override NodoResultado Tick()
+    {
+        if (hecho) return NodoResultado.Exito;
+        tiempo += Time.deltaTime;
+        if (tiempo >= 5f)
+        {
+            cliente.AsignarAnimal();
+            hecho = true;
+            return NodoResultado.Exito;
+        }
+        return NodoResultado.Ejecutando;
+    }
+}
+
+public class NodoColaEntrevista : NodoBT
+{
+    private readonly ClienteBT cliente;
+    private readonly GameManager gameManager;
+    private bool registrado = false;
+
+    public NodoColaEntrevista(ClienteBT cliente, GameManager gameManager)
+    {
+        this.cliente = cliente;
+        this.gameManager = gameManager;
+    }
+
+    public override NodoResultado Tick()
+    {
+        if (!registrado)
+        {
+            gameManager.ClienteEnSalaEspera(cliente);
+            registrado = true;
+        }
+        return gameManager.ClientePuedeEntrevistarse(cliente)
+            ? NodoResultado.Exito
+            : NodoResultado.Ejecutando;
+    }
+}
+
+public class NodoCondicional : NodoBT
+{
+    private readonly Func<bool> condicion;
+    private readonly NodoBT hijo;
+
+    public NodoCondicional(Func<bool> condicion, NodoBT hijo)
+    {
+        this.condicion = condicion;
+        this.hijo = hijo;
+    }
+
+    public override NodoResultado Tick()
+    {
+        if (!condicion()) return NodoResultado.Exito;
+        return hijo.Tick();
+    }
+}
 
 public class ClienteBT : MonoBehaviour
 {
     private NavMeshAgent agente;
-    private GameManager gameManager;
     private DetectarZona detectarZona;
+    private GameManager gameManager;
 
-    private Transform puntoCheckIn, salaEspera, salaEntrevista, zonaGatos, zonaPerros, checkout, salida;
+    [Header("Puntos")] public Transform puntoCheckIn, salaEspera, salaEntrevista, zonaGatos, zonaPerros, checkout, salida;
+
     private bool registrado = false, entrevistado = false, aprobado = false, enSalaEspera = false;
-    private bool quierePerro;
-
-    public delegate void ClienteSalidoDelegate();
-    public event ClienteSalidoDelegate OnClienteSalido;
+    private bool quierePerro = false;
     private GameObject animalAsignado;
-    private static Queue<ClienteBT> colaEspera = new Queue<ClienteBT>();
-    private static bool salaEntrevistaOcupada = false;
+    private bool checkInCompletado = false;
+
+    private NodoBT arbol;
+    private NodoResultado estadoActual = NodoResultado.Ejecutando;
+    private Transform destinoActual = null;
+
+    public string DetectarZonaActual() => detectarZona != null ? detectarZona.zonaActual : "FueraDeZona";
 
     public void InicializarCliente(Transform checkIn, Transform espera, Transform entrevista, Transform gatos, Transform perros, Transform check, Transform outRefugio, GameManager manager)
     {
@@ -35,144 +243,132 @@ public class ClienteBT : MonoBehaviour
     {
         agente = GetComponent<NavMeshAgent>();
         detectarZona = GetComponent<DetectarZona>();
+        ConstruirArbol();
+    }
 
-        if (agente == null || !agente.isOnNavMesh || gameManager == null)
+    void Update()
+    {
+        if (estadoActual == NodoResultado.Ejecutando && arbol != null)
         {
-            Debug.LogError(" ERROR: Cliente no está correctamente configurado.");
+            estadoActual = arbol.Tick();
+        }
+    }
+
+    void ConstruirArbol()
+    {
+        NodoBT checkInSecuencia = new NodoSecuencia(new List<NodoBT> {
+            new NodoColaRecepcion(this, gameManager),
+            new NodoAccion(() => IrA(puntoCheckIn)),
+            new NodoEsperarZona(this, "CheckIn"),
+            new NodoEsperarCheckInConfirmado(this)
+        });
+
+        NodoBT irEspera = new NodoAccion(() => IrA(salaEspera));
+        NodoBT esperarSala = new NodoEsperarZona(this, "SalaEspera");
+
+        NodoBT registroCola = new NodoColaEntrevista(this, gameManager);
+
+        NodoBT irEntrevista = new NodoAccion(() => IrA(salaEntrevista));
+        NodoBT esperarEntrevista = new NodoEsperarZona(this, "SalaEntrevista");
+
+        NodoBT entrevista = new NodoEntrevista(this);
+
+        NodoBT adopcion = new NodoSecuencia(new List<NodoBT> {
+            new NodoAccion(() => IrA(quierePerro ? zonaPerros : zonaGatos)),
+            new NodoEsperarZona(this, quierePerro ? "ZonaPerros" : "ZonaGatos"),
+            new NodoAdopcion(this)
+        });
+
+        NodoBT irCheckout = new NodoAccion(() => IrA(checkout));
+        NodoBT irSalida = new NodoAccion(() => IrA(salida, SalirDelRefugio));
+
+        var pasos = new List<NodoBT> {
+            checkInSecuencia,
+            irEspera, esperarSala,
+            registroCola,
+            irEntrevista, esperarEntrevista,
+            entrevista,
+            new NodoCondicional(() => aprobado, adopcion),
+            irCheckout,
+            irSalida
+        };
+
+        arbol = new NodoSecuencia(pasos);
+    }
+
+    NodoResultado IrA(Transform destino, Action onLlegada = null)
+    {
+        if (destino == null || agente == null || !agente.isOnNavMesh) return NodoResultado.Fallo;
+
+        if (destinoActual != destino)
+        {
+            agente.isStopped = false;
+            agente.SetDestination(destino.position);
+            destinoActual = destino;
+            return NodoResultado.Ejecutando;
+        }
+
+        if (agente.pathPending || agente.remainingDistance > agente.stoppingDistance)
+            return NodoResultado.Ejecutando;
+
+        agente.isStopped = true;
+        destinoActual = null;
+        onLlegada?.Invoke();
+        return NodoResultado.Exito;
+    }
+
+    public void RealizarResultadoEntrevista()
+    {
+        aprobado = UnityEngine.Random.value > 0.5f;
+        quierePerro = UnityEngine.Random.value > 0.5f;
+        entrevistado = true;
+        Debug.Log($"{name} entrevistado. Aprobado: {aprobado}, QuierePerro: {quierePerro}");
+    }
+    public void LiberarSalaEntrevista()
+    {
+        gameManager?.LiberarSalaEntrevista();
+    }
+
+    public void AsignarAnimal()
+    {
+        if (gameManager == null)
+        {
+            Debug.LogWarning("GameManager no asignado en ClienteBT");
             return;
         }
 
-        StartCoroutine(EjecutarBehaviourTree());
-    }
-
-    public string DetectarZonaActual()
-    {
-        return detectarZona != null ? detectarZona.zonaActual : "FueraDeZona";
-    }
-
-    IEnumerator EjecutarBehaviourTree()
-    {
-        yield return StartCoroutine(EsperarCheckIn());
-        yield return StartCoroutine(MoverASalaEspera());
-        yield return StartCoroutine(EsperarEntrevista());
-        yield return StartCoroutine(ProcesoEntrevista());
-
-        if (aprobado)
+        animalAsignado = gameManager.AsignarAnimal(quierePerro);
+        if (animalAsignado != null)
         {
-            yield return StartCoroutine(VisitarZonaAdopcion());
-            yield return StartCoroutine(IrA(checkout));
+            animalAsignado.transform.SetParent(transform);
+            animalAsignado.transform.localPosition = new Vector3(0.5f, 0, 0);
+            Debug.Log(name + " ha adoptado un " + (quierePerro ? "perro" : "gato"));
         }
         else
         {
-            yield return StartCoroutine(IrA(checkout));
-        }
-
-        yield return StartCoroutine(IrA(salida));
-        SalirDelRefugio();
-    }
-
-    IEnumerator EsperarCheckIn()
-    {
-        yield return StartCoroutine(IrA(puntoCheckIn));
-        while (DetectarZonaActual() != "CheckIn")
-            yield return null;
-        yield return new WaitForSeconds(2f);
-        registrado = true;
-    }
-
-    public IEnumerator MoverASalaEspera()
-    {
-        yield return StartCoroutine(IrA(salaEspera));
-        while (DetectarZonaActual() != "SalaEspera")
-            yield return null;
-        enSalaEspera = true;
-        colaEspera.Enqueue(this);
-        gameManager.RevisarSalaEspera();
-    }
-
-    IEnumerator EsperarEntrevista()
-    {
-        while (colaEspera.Peek() != this || salaEntrevistaOcupada)
-            yield return null;
-
-        colaEspera.Dequeue();
-        salaEntrevistaOcupada = true;
-        yield return StartCoroutine(IrA(salaEntrevista));
-        while (DetectarZonaActual() != "SalaEntrevista")
-            yield return null;
-    }
-
-    public void IniciarEntrevista()
-    {
-        StartCoroutine(ProcesoEntrevista());
-    }
-
-    IEnumerator ProcesoEntrevista()
-    {
-        if (DetectarZonaActual() != "SalaEntrevista")
-        {
-            Debug.LogError(" ERROR: Cliente intentó realizar la entrevista fuera de la Sala de Entrevista.");
-            yield break;
-        }
-
-        yield return new WaitForSeconds(Random.Range(3f, 5f));
-        aprobado = Random.value > 0.5f;
-        quierePerro = Random.value > 0.5f;
-        Debug.Log(name + " ha terminado la Entrevista. Aprobado: " + aprobado + ", Quiere Perro: " + quierePerro);
-        yield return new WaitForSeconds(1f);
-        salaEntrevistaOcupada = false;
-        gameManager.RevisarSalaEspera();
-    }
-
-    IEnumerator VisitarZonaAdopcion()
-    {
-        Transform zonaDestino = quierePerro ? zonaPerros : zonaGatos;
-
-        if (zonaDestino == null)
-        {
-            Debug.LogError(" ERROR: La zona de adopción es NULL. Verifica que los puntos están asignados en GameManager.");
-            yield break;
-        }
-
-        Debug.Log(name + " se mueve a la zona de " + (quierePerro ? "Perros" : "Gatos"));
-        yield return StartCoroutine(IrA(zonaDestino));
-
-        while (DetectarZonaActual() != (quierePerro ? "ZonaPerros" : "ZonaGatos"))
-            yield return null;
-
-        yield return new WaitForSeconds(Random.Range(3f, 7f));
-        animalAsignado = gameManager.AsignarAnimal(quierePerro);
-
-        if (animalAsignado != null)
-        {
-            Debug.Log(name + " ha adoptado un " + (quierePerro ? "perro" : "gato"));
-            animalAsignado.transform.SetParent(transform);
-            animalAsignado.transform.localPosition = new Vector3(0.5f, 0, 0);
+            Debug.LogWarning("No hay animales disponibles para asignar a " + name);
         }
     }
 
-    public IEnumerator IrA(Transform destino)
+    public void ConfirmarCheckIn()
     {
-        if (destino == null || agente == null || !agente.isOnNavMesh)
-        {
-            Debug.LogError(" ERROR: Destino inválido en ClienteBT.");
-            yield break;
-        }
+        checkInCompletado = true;
+        Debug.Log($"🟢 {name} recibió confirmación de check-in.");
+    }
 
-        agente.isStopped = false;
-        agente.SetDestination(destino.position);
-        Debug.Log(name + " moviéndose hacia: " + destino.name + " en posición " + destino.position);
-
-        while (agente.pathPending || agente.remainingDistance > agente.stoppingDistance)
-            yield return null;
-
-        agente.isStopped = true;
-        Debug.Log(name + " llegó a " + destino.name);
+    public bool CheckInConfirmado()
+    {
+        Debug.Log($"🔍 {name} verifica check-in confirmado: {checkInCompletado}");
+        return checkInCompletado;
     }
 
     void SalirDelRefugio()
     {
-        OnClienteSalido?.Invoke();
+        gameManager?.LiberarRecepcion();
+        gameManager?.ClienteSalido();
         Destroy(gameObject);
     }
+
+    public bool EstaEnSalaEspera() => enSalaEspera;
+    public bool EstaEntrevistado() => entrevistado;
 }

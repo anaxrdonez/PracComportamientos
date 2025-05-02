@@ -1,9 +1,8 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 using UnityEngine.AI;
-
 
 public class GameManager : MonoBehaviour
 {
@@ -22,9 +21,10 @@ public class GameManager : MonoBehaviour
     public List<Transform> puntosPatrulla;
     public List<Transform> salas;
 
-    private Queue<ClienteBT> colaCheckIn = new Queue<ClienteBT>();
     private Queue<ClienteBT> colaSalaEspera = new Queue<ClienteBT>();
-    private bool checkInOcupado = false, entrevistaOcupada = false;
+    private Queue<ClienteBT> colaRecepcion = new Queue<ClienteBT>();
+    private bool entrevistaOcupada = false;
+    private bool recepcionOcupada = false;
     private List<LimpiadorFSM> limpiadores = new List<LimpiadorFSM>();
     private Dictionary<Transform, bool> estadoSalas = new Dictionary<Transform, bool>();
 
@@ -37,11 +37,6 @@ public class GameManager : MonoBehaviour
     private List<GameObject> perrosDisponibles = new List<GameObject>();
     private List<GameObject> gatosDisponibles = new List<GameObject>();
 
-    [Header("Materiales de animales")]
-    public Material[] materialesPerro;
-    public Material[] materialesGato;
-
-
     void Start()
     {
         Debug.Log("Iniciando GameManager...");
@@ -50,7 +45,7 @@ public class GameManager : MonoBehaviour
         StartCoroutine(ControlSuciedadSalas());
 
         foreach (var sala in salas)
-            estadoSalas[sala] = false; 
+            estadoSalas[sala] = false;
 
         for (int i = 0; i < 5; i++)
         {
@@ -58,34 +53,6 @@ public class GameManager : MonoBehaviour
             GameObject gato = Instantiate(gatoPrefab, zonaGatos.position, Quaternion.identity);
             perrosDisponibles.Add(perro);
             gatosDisponibles.Add(gato);
-        }
-
-        for (int i = 0; i < 5; i++)
-        {
-            // Instanciamos perro
-            GameObject perro = Instantiate(perroPrefab, zonaPerros.position, Quaternion.identity);
-            AsignarMaterialAleatorio(perro, materialesPerro);   // ← aquí
-            perrosDisponibles.Add(perro);
-
-            // Instanciamos gato
-            GameObject gato = Instantiate(gatoPrefab, zonaGatos.position, Quaternion.identity);
-            AsignarMaterialAleatorio(gato, materialesGato);     // ← y aquí
-            gatosDisponibles.Add(gato);
-        }
-    }
-
-    private void AsignarMaterialAleatorio(GameObject animal, Material[] materiales)
-    {
-        if (materiales == null || materiales.Length == 0) return;
-
-        // Elegimos un material al azar
-        Material mat = materiales[Random.Range(0, materiales.Length)];
-
-        // Asignamos a todos los renderers del objeto (por si hay sub-meshes)
-        var renderers = animal.GetComponentsInChildren<Renderer>();
-        foreach (var r in renderers)
-        {
-            r.material = mat;
         }
     }
 
@@ -105,19 +72,23 @@ public class GameManager : MonoBehaviour
                 {
                     clienteScript.InicializarCliente(puntoCheckIn, salaEspera, salaEntrevista, zonaGatos, zonaPerros, checkout, salida, this);
                     clientesActuales++;
-                    clienteScript.OnClienteSalido += ClienteSalido;
 
-                    // Nuevo: encontrar y notificar al recepcionista
                     RecepcionistaFSM recepcionista = FindObjectOfType<RecepcionistaFSM>();
                     if (recepcionista != null)
+                    {
                         recepcionista.ClienteLlega(clienteScript);
+                        Debug.Log("📨 Cliente notificado al recepcionista.");
+                    }
+                    else
+                    {
+                        Debug.LogWarning("⚠️ No se encontró un RecepcionistaFSM en la escena.");
+                    }
 
-                    Debug.Log("Cliente creado y enviado al recepcionista.");
+                    Debug.Log("Cliente creado correctamente.");
                 }
-
                 else
                 {
-                    Debug.LogError(" ERROR: El prefab de Cliente no tiene el script ClienteBT adjunto.");
+                    Debug.LogError("ERROR: El prefab de Cliente no tiene el script ClienteBT adjunto.");
                 }
             }
             else
@@ -138,11 +109,10 @@ public class GameManager : MonoBehaviour
             {
                 limpiadorScript.InicializarLimpiador(almacen, puntosPatrulla, salas, this);
 
-                // Asignar prioridad en NavMeshAgent
                 NavMeshAgent agente = nuevoLimpiador.GetComponent<NavMeshAgent>();
                 if (agente != null)
                 {
-                    agente.avoidancePriority = Random.Range(30, 70); // Asigna una prioridad aleatoria
+                    agente.avoidancePriority = Random.Range(30, 70);
                 }
 
                 limpiadores.Add(limpiadorScript);
@@ -150,14 +120,13 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
     IEnumerator ControlSuciedadSalas()
     {
         while (true)
         {
             yield return new WaitForSeconds(30f);
             Transform salaSucia = salas[Random.Range(0, salas.Count)];
-            if (!estadoSalas[salaSucia]) // Solo ensuciar si está limpia
+            if (!estadoSalas[salaSucia])
             {
                 estadoSalas[salaSucia] = true;
                 Debug.Log("⚠️ La sala " + salaSucia.name + " se ha ensuciado.");
@@ -166,50 +135,41 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
-
-    
-
     public void ClienteEnSalaEspera(ClienteBT cliente)
     {
-        colaSalaEspera.Enqueue(cliente);
-        RevisarSalaEspera();
+        if (!colaSalaEspera.Contains(cliente))
+            colaSalaEspera.Enqueue(cliente);
     }
 
-    public void RevisarSalaEspera()
+    public bool ClientePuedeEntrevistarse(ClienteBT cliente)
     {
-        if (!entrevistaOcupada && colaSalaEspera.Count > 0)
-        {
-            ClienteBT siguienteCliente = colaSalaEspera.Dequeue();
-            StartCoroutine(ClienteEnEntrevista(siguienteCliente));
-        }
-    }
+        if (entrevistaOcupada) return false;
+        if (colaSalaEspera.Count == 0 || colaSalaEspera.Peek() != cliente) return false;
 
-    public IEnumerator ClienteEnEntrevista(ClienteBT cliente)
-    {
-        while (entrevistaOcupada)
-            yield return null;
-
+        colaSalaEspera.Dequeue();
         entrevistaOcupada = true;
-        Debug.Log(cliente.name + " se mueve a la Entrevista...");
-        yield return cliente.IrA(salaEntrevista);
-
-        while (cliente.DetectarZonaActual() != "SalaEntrevista")
-            yield return null;
-
-        Debug.Log(cliente.name + " llegó a la Sala de Entrevista.");
-        cliente.IniciarEntrevista();
+        return true;
     }
 
-    public void OcupaSalaEntrevista()
+    public void ClienteARecepcion(ClienteBT cliente)
     {
-        entrevistaOcupada = true;
+        if (!colaRecepcion.Contains(cliente))
+            colaRecepcion.Enqueue(cliente);
     }
 
-    public void LiberaSalaEntrevista()
+    public bool ClientePuedeSerRegistrado(ClienteBT cliente)
     {
-        entrevistaOcupada = false;
-        RevisarSalaEspera();
+        if (recepcionOcupada) return false;
+        if (colaRecepcion.Count == 0 || colaRecepcion.Peek() != cliente) return false;
+
+        recepcionOcupada = true;
+        colaRecepcion.Dequeue();
+        return true;
+    }
+
+    public void LiberarRecepcion()
+    {
+        recepcionOcupada = false;
     }
 
     public GameObject AsignarAnimal(bool quierePerro)
@@ -251,7 +211,6 @@ public class GameManager : MonoBehaviour
     {
         if (!estadoSalas[sala]) return;
 
-        // Seleccionar un limpiador aleatorio entre los que están patrullando
         List<LimpiadorFSM> limpiadoresDisponibles = limpiadores
             .Where(l => l.EstadoActual == LimpiadorFSM.EstadoLimpiador.Patrullando)
             .ToList();
@@ -260,7 +219,7 @@ public class GameManager : MonoBehaviour
         {
             LimpiadorFSM limpiadorAsignado = limpiadoresDisponibles[Random.Range(0, limpiadoresDisponibles.Count)];
             limpiadorAsignado.IrALimpiar(sala);
-            estadoSalas[sala] = false; // Marcar sala como en proceso de limpieza
+            estadoSalas[sala] = false;
         }
     }
 
@@ -269,9 +228,14 @@ public class GameManager : MonoBehaviour
         estadoSalas[sala] = false;
         Debug.Log("✅ Sala limpia: " + sala.name);
     }
+    public void LiberarSalaEntrevista()
+    {
+        entrevistaOcupada = false;
+    }
 
-    void ClienteSalido()
+    public void ClienteSalido()
     {
         clientesActuales--;
+        entrevistaOcupada = false;
     }
 }
