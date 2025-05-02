@@ -1,5 +1,4 @@
-﻿// ClienteBT.cs - actualizado con NodoCondicional para adopción
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -59,17 +58,19 @@ public class NodoAccion : NodoBT
 public class NodoEsperarZona : NodoBT
 {
     private readonly ClienteBT cliente;
-    private readonly string zonaObjetivo;
+    private readonly Func<string> obtenerZona;
 
-    public NodoEsperarZona(ClienteBT cliente, string zona)
+    public NodoEsperarZona(ClienteBT cliente, Func<string> zonaDinamica)
     {
         this.cliente = cliente;
-        zonaObjetivo = zona;
+        this.obtenerZona = zonaDinamica;
     }
 
     public override NodoResultado Tick()
     {
-        return cliente.DetectarZonaActual() == zonaObjetivo ? NodoResultado.Exito : NodoResultado.Ejecutando;
+        return cliente.DetectarZonaActual() == obtenerZona()
+            ? NodoResultado.Exito
+            : NodoResultado.Ejecutando;
     }
 }
 
@@ -131,11 +132,10 @@ public class NodoEntrevista : NodoBT
         if (tiempo >= 4f)
         {
             cliente.RealizarResultadoEntrevista();
-            cliente.LiberarSalaEntrevista();  
+            cliente.LiberarSalaEntrevista();
             hecha = true;
             return NodoResultado.Exito;
         }
-
         return NodoResultado.Ejecutando;
     }
 }
@@ -259,23 +259,23 @@ public class ClienteBT : MonoBehaviour
         NodoBT checkInSecuencia = new NodoSecuencia(new List<NodoBT> {
             new NodoColaRecepcion(this, gameManager),
             new NodoAccion(() => IrA(puntoCheckIn)),
-            new NodoEsperarZona(this, "CheckIn"),
+            new NodoEsperarZona(this, () => "CheckIn"),
             new NodoEsperarCheckInConfirmado(this)
         });
 
         NodoBT irEspera = new NodoAccion(() => IrA(salaEspera));
-        NodoBT esperarSala = new NodoEsperarZona(this, "SalaEspera");
+        NodoBT esperarSala = new NodoEsperarZona(this, () => "SalaEspera");
 
         NodoBT registroCola = new NodoColaEntrevista(this, gameManager);
 
         NodoBT irEntrevista = new NodoAccion(() => IrA(salaEntrevista));
-        NodoBT esperarEntrevista = new NodoEsperarZona(this, "SalaEntrevista");
+        NodoBT esperarEntrevista = new NodoEsperarZona(this, () => "SalaEntrevista");
 
         NodoBT entrevista = new NodoEntrevista(this);
 
         NodoBT adopcion = new NodoSecuencia(new List<NodoBT> {
             new NodoAccion(() => IrA(quierePerro ? zonaPerros : zonaGatos)),
-            new NodoEsperarZona(this, quierePerro ? "ZonaPerros" : "ZonaGatos"),
+            new NodoEsperarZona(this, () => quierePerro ? "ZonaPerros" : "ZonaGatos"),
             new NodoAdopcion(this)
         });
 
@@ -324,10 +324,6 @@ public class ClienteBT : MonoBehaviour
         entrevistado = true;
         Debug.Log($"{name} entrevistado. Aprobado: {aprobado}, QuierePerro: {quierePerro}");
     }
-    public void LiberarSalaEntrevista()
-    {
-        gameManager?.LiberarSalaEntrevista();
-    }
 
     public void AsignarAnimal()
     {
@@ -371,4 +367,9 @@ public class ClienteBT : MonoBehaviour
 
     public bool EstaEnSalaEspera() => enSalaEspera;
     public bool EstaEntrevistado() => entrevistado;
+
+    public void LiberarSalaEntrevista()
+    {
+        gameManager?.LiberarSalaEntrevista();
+    }
 }
