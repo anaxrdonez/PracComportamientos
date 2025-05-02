@@ -37,6 +37,11 @@ public class GameManager : MonoBehaviour
     private List<GameObject> perrosDisponibles = new List<GameObject>();
     private List<GameObject> gatosDisponibles = new List<GameObject>();
 
+    [Header("Materiales de animales")]
+    public Material[] materialesPerro;
+    public Material[] materialesGato;
+
+
     void Start()
     {
         Debug.Log("Iniciando GameManager...");
@@ -53,6 +58,34 @@ public class GameManager : MonoBehaviour
             GameObject gato = Instantiate(gatoPrefab, zonaGatos.position, Quaternion.identity);
             perrosDisponibles.Add(perro);
             gatosDisponibles.Add(gato);
+        }
+
+        for (int i = 0; i < 5; i++)
+        {
+            // Instanciamos perro
+            GameObject perro = Instantiate(perroPrefab, zonaPerros.position, Quaternion.identity);
+            AsignarMaterialAleatorio(perro, materialesPerro);   // ← aquí
+            perrosDisponibles.Add(perro);
+
+            // Instanciamos gato
+            GameObject gato = Instantiate(gatoPrefab, zonaGatos.position, Quaternion.identity);
+            AsignarMaterialAleatorio(gato, materialesGato);     // ← y aquí
+            gatosDisponibles.Add(gato);
+        }
+    }
+
+    private void AsignarMaterialAleatorio(GameObject animal, Material[] materiales)
+    {
+        if (materiales == null || materiales.Length == 0) return;
+
+        // Elegimos un material al azar
+        Material mat = materiales[Random.Range(0, materiales.Length)];
+
+        // Asignamos a todos los renderers del objeto (por si hay sub-meshes)
+        var renderers = animal.GetComponentsInChildren<Renderer>();
+        foreach (var r in renderers)
+        {
+            r.material = mat;
         }
     }
 

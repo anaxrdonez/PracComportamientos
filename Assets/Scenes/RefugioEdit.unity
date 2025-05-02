@@ -2051,6 +2051,21 @@ MonoBehaviour:
   - {fileID: 142633436}
   maxClientes: 4
   numLimpiadores: 3
+  materialesPerro:
+  - {fileID: 2100000, guid: f6730b960ba6c914e9141395fc93249f, type: 2}
+  - {fileID: 2100000, guid: 479f6d30f324b8f49949fcc6dfdb289b, type: 2}
+  - {fileID: 2100000, guid: 16301c8556c91ff448de26f69ee2bff6, type: 2}
+  - {fileID: 2100000, guid: 16301c8556c91ff448de26f69ee2bff6, type: 2}
+  - {fileID: 2100000, guid: 8fd192304df88db499eedb3456dc6d67, type: 2}
+  - {fileID: 2100000, guid: 38ffbdfed868f6846b538095ce0ba05f, type: 2}
+  materialesGato:
+  - {fileID: 2100000, guid: 7767c9630a826a947a8d5621273f3173, type: 2}
+  - {fileID: 2100000, guid: f6730b960ba6c914e9141395fc93249f, type: 2}
+  - {fileID: 2100000, guid: a170b2dc65d54ce4d959d38806c6326a, type: 2}
+  - {fileID: 2100000, guid: 33d13850ce81ea14290c173044bcaf2a, type: 2}
+  - {fileID: 2100000, guid: 16301c8556c91ff448de26f69ee2bff6, type: 2}
+  - {fileID: 2100000, guid: 8fd192304df88db499eedb3456dc6d67, type: 2}
+  - {fileID: 2100000, guid: 38ffbdfed868f6846b538095ce0ba05f, type: 2}
 --- !u!4 &648586352
 Transform:
   m_ObjectHideFlags: 0
@@ -5034,8 +5049,8 @@ Transform:
   m_GameObject: {fileID: 1706217708}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -6.3, y: -2, z: 4.4}
-  m_LocalScale: {x: 13, y: 3, z: 8}
+  m_LocalPosition: {x: 40.9, y: -2, z: -38.6}
+  m_LocalScale: {x: 3.630773, y: 3, z: 3.391645}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 142633436}
@@ -16733,6 +16748,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 115964411}
     m_Modifications:
+    - target: {fileID: 4542809302580612383, guid: 221b71ec2b9125742902e3d5ba9dc2ba, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 38ffbdfed868f6846b538095ce0ba05f, type: 2}
     - target: {fileID: 5231784600955447129, guid: 221b71ec2b9125742902e3d5ba9dc2ba, type: 3}
       propertyPath: m_LocalPosition.x
       value: -3.4369054
@@ -24402,6 +24421,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7326076171222090500, guid: 399bcecf299f13249bd72a4ddf62e09f, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 4f2e6c00c35c1d94abf15453d511cadc, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
