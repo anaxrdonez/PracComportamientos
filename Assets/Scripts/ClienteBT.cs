@@ -226,6 +226,9 @@ public class ClienteBT : MonoBehaviour
     private Transform destinoActual = null;
 
     public string DetectarZonaActual() => detectarZona != null ? detectarZona.zonaActual : "FueraDeZona";
+    public Camera ClienteCam => GetComponentInChildren<Camera>();
+    public event System.Action OnClienteSalido;
+
 
     public void InicializarCliente(Transform checkIn, Transform espera, Transform entrevista, Transform gatos, Transform perros, Transform check, Transform outRefugio, GameManager manager)
     {
@@ -362,6 +365,7 @@ public class ClienteBT : MonoBehaviour
     {
         gameManager?.LiberarRecepcion();
         gameManager?.ClienteSalido();
+        OnClienteSalido?.Invoke();
         Destroy(gameObject);
     }
 

@@ -33,6 +33,10 @@ public class GameManager : MonoBehaviour
     public int numLimpiadores = 2;
     private int clientesActuales = 0;
 
+
+    private CameraSwitcher cameraSwitcher;
+
+
     [Header("Animales")]
     private List<GameObject> perrosDisponibles = new List<GameObject>();
     private List<GameObject> gatosDisponibles = new List<GameObject>();
@@ -54,6 +58,8 @@ public class GameManager : MonoBehaviour
             perrosDisponibles.Add(perro);
             gatosDisponibles.Add(gato);
         }
+        cameraSwitcher = FindObjectOfType<CameraSwitcher>();
+
     }
 
     IEnumerator GenerarClientes()
@@ -75,20 +81,25 @@ public class GameManager : MonoBehaviour
 
                     RecepcionistaFSM recepcionista = FindObjectOfType<RecepcionistaFSM>();
                     if (recepcionista != null)
-                    {
                         recepcionista.ClienteLlega(clienteScript);
-                        Debug.Log("📨 Cliente notificado al recepcionista.");
-                    }
-                    else
+
+                    if (cameraSwitcher != null && clienteScript.ClienteCam != null)
                     {
-                        Debug.LogWarning("⚠️ No se encontró un RecepcionistaFSM en la escena.");
+                        cameraSwitcher.RegistrarCliente(clienteScript.ClienteCam);
+
+                        clienteScript.OnClienteSalido += () =>
+                        {
+                            if (cameraSwitcher != null && clienteScript.ClienteCam != null)
+                                cameraSwitcher.DesregistrarCliente(clienteScript.ClienteCam);
+                        };
                     }
 
-                    Debug.Log("Cliente creado correctamente.");
+                    Debug.Log("Cliente creado y enviado al recepcionista.");
                 }
+
                 else
                 {
-                    Debug.LogError("ERROR: El prefab de Cliente no tiene el script ClienteBT adjunto.");
+                    Debug.LogError(" ERROR: El prefab de Cliente no tiene el script ClienteBT adjunto.");
                 }
             }
             else
