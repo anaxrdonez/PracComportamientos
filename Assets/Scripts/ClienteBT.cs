@@ -163,28 +163,22 @@ public class NodoColaRecepcion : NodoBT
  */
 public class NodoEntrevista : NodoBT
 {
-    private readonly ClienteBT cliente;
-    private bool hecha = false; //marcará si se ha realizado la entrevista
-    private float tiempo; //para simulación
+        private readonly ClienteBT cliente;
 
-    public NodoEntrevista(ClienteBT cliente)
-    {
-        this.cliente = cliente;
-    }
-
-    public override NodoResultado Tick()
-    {
-        if (hecha) return NodoResultado.Exito; // si se ha realizado devuelve ÉXITO
-        tiempo += Time.deltaTime; //se va sumando el tiempo transcurrido
-        if (tiempo >= 4f) // 4 segundos al menos por entrevista
+        public NodoEntrevista(ClienteBT cliente)
         {
-            cliente.RealizarResultadoEntrevista(); //aprobado o suspenso
-            cliente.LiberarSalaEntrevista(); 
-            hecha = true; // marcamos entrevista como hecha para no repetirla
-            return NodoResultado.Exito;
+            this.cliente = cliente;
         }
-        return NodoResultado.Ejecutando;//si aún no ha pasado el tiempo suficiente se sigue ejecutando
-    }
+
+        public override NodoResultado Tick()
+        {
+            // Espera pasiva: el EntrevistadorFSM gestiona la entrevista.
+            // Este nodo sólo comprueba si ya ha finalizado.
+            return cliente.EstaEntrevistado()
+                ? NodoResultado.Exito
+                : NodoResultado.Ejecutando;
+        }
+
 }
 
 
@@ -298,6 +292,8 @@ public class ClienteBT : MonoBehaviour
     private NodoBT arbol;
     private NodoResultado estadoActual = NodoResultado.Ejecutando;
     private Transform destinoActual = null;
+
+    public bool Aprobado() => aprobado; //apto para adoptar
 
     public string DetectarZonaActual() => detectarZona != null ? detectarZona.zonaActual : "FueraDeZona";
     public Camera ClienteCam => GetComponentInChildren<Camera>();
@@ -413,7 +409,7 @@ public class ClienteBT : MonoBehaviour
         onLlegada?.Invoke();
         return NodoResultado.Exito;
     }
-
+    
     public void RealizarResultadoEntrevista()
     {
         aprobado = UnityEngine.Random.value > 0.5f;
