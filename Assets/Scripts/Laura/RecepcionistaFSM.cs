@@ -20,7 +20,7 @@ public class RecepcionistaFSM : MonoBehaviour
 
         if (puntoRecepcion == null)
         {
-            Debug.LogError("❌ puntoRecepcion no asignado en RecepcionistaFSM.");
+            //Debug.LogError("❌ puntoRecepcion no asignado en RecepcionistaFSM.");
         }
 
         StartCoroutine(FSM());
