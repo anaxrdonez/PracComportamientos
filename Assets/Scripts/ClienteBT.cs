@@ -180,6 +180,33 @@ public class NodoEntrevista : NodoBT
         }
 
 }
+public class NodoAvisarEntrevistador : NodoBT
+{
+    private readonly ClienteBT cliente;
+    private bool notificado = false;
+
+    public NodoAvisarEntrevistador(ClienteBT cliente)
+    {
+        this.cliente = cliente;
+    }
+
+    public override NodoResultado Tick()
+    {
+        if (notificado) return NodoResultado.Exito;
+
+        EntrevistadorFSM entrevistador = GameObject.FindObjectOfType<EntrevistadorFSM>();
+        if (entrevistador != null)
+        {
+            entrevistador.ClienteLlega(cliente);
+            Debug.Log(" Entrevistador notificado por el cliente: " + cliente.name);
+            notificado = true;
+            return NodoResultado.Exito;
+        }
+
+        return NodoResultado.Fallo;
+    }
+}
+
 
 
 //---------- NODO ACCIÓN ---------- //
@@ -355,12 +382,13 @@ public class ClienteBT : MonoBehaviour
         //-------- 3. COLA PARA ENTREVISTA --------//
         NodoBT registroCola = new NodoColaEntrevista(this, gameManager);
 
-        //-------- 4. IR A SALA ENTREVISTA Y SIMULACIÓN --------//
+        //-------- 4. IR A SALA ENTREVISTA Y NOTIFICAR --------//
         NodoBT irEntrevista = new NodoCondicional(
-            () => TienePermisoEntrevista(),
-            new NodoAccion(() => IrA(salaEntrevista))
-        );
+               () => TienePermisoEntrevista(),
+               new NodoAccion(() => IrA(salaEntrevista))
+           );
         NodoBT esperarEntrevista = new NodoEsperarZona(this, () => "SalaEntrevista");
+        NodoBT avisarEntrevistador = new NodoAvisarEntrevistador(this);
         NodoBT entrevista = new NodoEntrevista(this);
 
         //-------- 5. ADOPCIÓN (SOLO SI HA APROBADO) --------//
@@ -379,7 +407,7 @@ public class ClienteBT : MonoBehaviour
             checkInSecuencia,
             irEspera, esperarSala,
             registroCola,
-            irEntrevista, esperarEntrevista,
+            irEntrevista, esperarEntrevista,avisarEntrevistador,
             entrevista,
             new NodoCondicional(() => aprobado, adopcion),
             irCheckout,

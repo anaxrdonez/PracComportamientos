@@ -5147,7 +5147,7 @@ MonoBehaviour:
   - {fileID: 41894393}
   - {fileID: 2054215575}
   - {fileID: 142633436}
-  maxClientes: 1
+  maxClientes: 4
   numLimpiadores: 3
 --- !u!4 &648586352
 Transform:
