@@ -340,6 +340,10 @@ public class ClienteBT : MonoBehaviour
 
     public void InicializarCliente(Transform checkIn, Transform espera, Transform entrevista, Transform gatos, Transform perros, Transform check, Transform outRefugio, GameManager manager)
     {
+        aprobado = false;
+        entrevistado = false;
+        permisoEntrevista = false;
+        checkInCompletado = false;
         puntoCheckIn = checkIn;
         salaEspera = espera;
         salaEntrevista = entrevista;

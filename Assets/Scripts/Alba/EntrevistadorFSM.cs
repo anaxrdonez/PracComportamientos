@@ -85,7 +85,9 @@ public class EntrevistadorFSM : MonoBehaviour
 
                     // Reseteamos el parámetro para la próxima vez
                     animador.SetInteger("Resultado", -1);
+                    Debug.Log($"▶️ Estado actual en Animator: {animador.GetCurrentAnimatorStateInfo(0).IsName("DarResultadoNeg")}");
 
+                    clienteActual = null;
                     estadoActual = EstadoEntrevistador.Esperando;
                     break;
             }
