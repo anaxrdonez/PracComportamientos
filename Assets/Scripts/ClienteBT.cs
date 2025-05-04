@@ -263,7 +263,7 @@ public class NodoColaEntrevista : NodoBT
         }
 
         bool puede = gameManager.ClientePuedeEntrevistarse(cliente);
-        Debug.Log($"🔄 Cliente {cliente.name} intentando obtener permiso para entrevista. Puede: {puede}");
+        
 
         if (puede)
         {
