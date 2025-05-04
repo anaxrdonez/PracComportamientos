@@ -234,15 +234,27 @@ public class NodoColaEntrevista : NodoBT
 
     public override NodoResultado Tick()
     {
-        if (!registrado) //Si el cliente no se ha registrado en la cola se hace 
+        if (!registrado)
         {
             gameManager.ClienteEnSalaEspera(cliente);
-            registrado = true; //para que no se repita en cada tick()
+            registrado = true;
+            Debug.Log("📥 Cliente registrado en cola de entrevista: " + cliente.name);
         }
-        return gameManager.ClientePuedeEntrevistarse(cliente) 
-            ? NodoResultado.Exito // si el cliente está primero en la cola y la sala libre ÉXITO
-            : NodoResultado.Ejecutando; // sino se sigue ejcutando
+
+        bool puede = gameManager.ClientePuedeEntrevistarse(cliente);
+        Debug.Log($"🔄 Cliente {cliente.name} intentando obtener permiso para entrevista. Puede: {puede}");
+
+        if (puede)
+        {
+            cliente.OtorgarPermisoEntrevista();
+            Debug.Log("✅ Cliente recibió permiso para entrevista: " + cliente.name);
+            return NodoResultado.Exito;
+        }
+
+        return NodoResultado.Ejecutando;
     }
+
+
 }
 
 
@@ -290,7 +302,18 @@ public class ClienteBT : MonoBehaviour
     public string DetectarZonaActual() => detectarZona != null ? detectarZona.zonaActual : "FueraDeZona";
     public Camera ClienteCam => GetComponentInChildren<Camera>();
     public event System.Action OnClienteSalido; //para cuando el cliente ha salido del refugio
+    private bool permisoEntrevista = false;
 
+    // Getter y setter
+    public void OtorgarPermisoEntrevista()
+    {
+        permisoEntrevista = true;
+    }
+
+    public bool TienePermisoEntrevista()
+    {
+        return permisoEntrevista;
+    }
 
     public void InicializarCliente(Transform checkIn, Transform espera, Transform entrevista, Transform gatos, Transform perros, Transform check, Transform outRefugio, GameManager manager)
     {
@@ -337,7 +360,10 @@ public class ClienteBT : MonoBehaviour
         NodoBT registroCola = new NodoColaEntrevista(this, gameManager);
 
         //-------- 4. IR A SALA ENTREVISTA Y SIMULACIÓN --------//
-        NodoBT irEntrevista = new NodoAccion(() => IrA(salaEntrevista));
+        NodoBT irEntrevista = new NodoCondicional(
+            () => TienePermisoEntrevista(),
+            new NodoAccion(() => IrA(salaEntrevista))
+        );
         NodoBT esperarEntrevista = new NodoEsperarZona(this, () => "SalaEntrevista");
         NodoBT entrevista = new NodoEntrevista(this);
 

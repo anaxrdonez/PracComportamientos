@@ -32,7 +32,7 @@ public class GameManager : MonoBehaviour
     public int maxClientes = 3;
     public int numLimpiadores = 2;
     private int clientesActuales = 0;
-
+    private ClienteBT clienteConPermisoEntrevista = null;
 
     private CameraSwitcher cameraSwitcher;
 
@@ -154,13 +154,25 @@ public class GameManager : MonoBehaviour
 
     public bool ClientePuedeEntrevistarse(ClienteBT cliente)
     {
-        if (entrevistaOcupada) return false;
+        if (entrevistaOcupada || clienteConPermisoEntrevista != null) return false;
         if (colaSalaEspera.Count == 0 || colaSalaEspera.Peek() != cliente) return false;
 
         colaSalaEspera.Dequeue();
         entrevistaOcupada = true;
+        clienteConPermisoEntrevista = cliente;
         return true;
     }
+    public bool ClienteTienePermisoEntrevista(ClienteBT cliente)
+    {
+        if (clienteConPermisoEntrevista == cliente)
+        {
+            cliente.OtorgarPermisoEntrevista();
+            clienteConPermisoEntrevista = null; // Limpia para el siguiente
+            return true;
+        }
+        return false;
+    }
+
 
     public void ClienteARecepcion(ClienteBT cliente)
     {
@@ -242,6 +254,8 @@ public class GameManager : MonoBehaviour
     public void LiberarSalaEntrevista()
     {
         entrevistaOcupada = false;
+        clienteConPermisoEntrevista = null;
+        Debug.Log("🟢 La sala de entrevistas ha sido liberada.");
     }
 
     public void ClienteSalido()
