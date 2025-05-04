@@ -3,64 +3,86 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public enum NodoResultado
+public enum NodoResultado //Valores que podemos obtener de un nodo
 {
     Exito,
     Fallo,
-    Ejecutando
+    Ejecutando //sigue en proceso
 }
 
-public abstract class NodoBT
+public abstract class NodoBT //base par todos los nodos
 {
     public abstract NodoResultado Tick();
 }
 
+
+//---------- NODO SECUENCIA (composite)---------- //
+/* 
+ * Ejecuta una lista de nodos hijos uno por uno en orden.
+ * Si alguno falla, se detiene inmediatamente. 
+ * Si todos tienen éxito, la secuencia completa tiene éxito. 
+*/
 public class NodoSecuencia : NodoBT
 {
-    private readonly List<NodoBT> hijos;
-    private int indiceActual = 0;
+    private readonly List<NodoBT> hijos; // lista de nodos hijos
+    private int indiceActual = 0; // guardará el nodo que se estará ejecutando
 
-    public NodoSecuencia(List<NodoBT> hijos)
+    public NodoSecuencia(List<NodoBT> hijos) //constructor (recibe la lista de hijos)
     {
         this.hijos = hijos;
     }
 
-    public override NodoResultado Tick()
+    public override NodoResultado Tick() //métod principal
     {
-        while (indiceActual < hijos.Count)
+        while (indiceActual < hijos.Count) //mientras siga habiendo hijos sin procesar
         {
-            var resultado = hijos[indiceActual].Tick();
-            if (resultado == NodoResultado.Ejecutando) return NodoResultado.Ejecutando;
-            if (resultado == NodoResultado.Fallo)
+            var resultado = hijos[indiceActual].Tick(); //ejecuta el hijo actual
+            // Si el nodo hijo aun no ha terminado se sigue considerando en ejecución.
+            // No se avanzará al siguiente hijo
+            if (resultado == NodoResultado.Ejecutando) return NodoResultado.Ejecutando; 
+            if (resultado == NodoResultado.Fallo) //Si algún hijo fallo falla toda la secuencia.
             {
                 indiceActual = 0;
                 return NodoResultado.Fallo;
             }
-            indiceActual++;
+            indiceActual++; //Si hubo éxito se avanza al siguiente nodo hijo.
         }
-        indiceActual = 0;
+        indiceActual = 0; // Si todos los hijos han terminado con éxito se resetea  el indexy se devuelve exito
         return NodoResultado.Exito;
     }
 }
 
+
+//---------- NODO ACCIÓN ---------- //
+/* 
+ * Es un nodo Hoja, no tendrá hijos.
+ * Va a ejecutar una acción concreta que le paseremos.
+ * (Por ejemplo mover al cliente a un punto)
+ */
 public class NodoAccion : NodoBT
 {
-    private readonly Func<NodoResultado> accion;
+    private readonly Func<NodoResultado> accion; // devolverá ejecutando, éxito o fallo
 
-    public NodoAccion(Func<NodoResultado> accion)
+    public NodoAccion(Func<NodoResultado> accion) //Constructor
     {
         this.accion = accion;
     }
 
-    public override NodoResultado Tick() => accion();
+    public override NodoResultado Tick() => accion(); //Ejecuta la acción y devuelve el resultado.
+    //Lo usaremos por ejemplo con la acción IrA(sala_X) 
 }
 
+
+//---------- NODO HOJA CON CONDICIÓN ---------- //
+/*
+ * Evaluará una condición y esperará a que se cumpla.
+ */
 public class NodoEsperarZona : NodoBT
 {
-    private readonly ClienteBT cliente;
-    private readonly Func<string> obtenerZona;
+    private readonly ClienteBT cliente; //ref al cliente que se estará moviendo
+    private readonly Func<string> obtenerZona; // zona objetivo
 
-    public NodoEsperarZona(ClienteBT cliente, Func<string> zonaDinamica)
+    public NodoEsperarZona(ClienteBT cliente, Func<string> zonaDinamica) //Constructor
     {
         this.cliente = cliente;
         this.obtenerZona = zonaDinamica;
@@ -68,12 +90,20 @@ public class NodoEsperarZona : NodoBT
 
     public override NodoResultado Tick()
     {
-        return cliente.DetectarZonaActual() == obtenerZona()
-            ? NodoResultado.Exito
-            : NodoResultado.Ejecutando;
+        //Devuelve la zona actual donde se encuentra el cliente
+        //y lo compoara con el valor de obtenerZona()
+        return cliente.DetectarZonaActual() == obtenerZona() 
+            ? NodoResultado.Exito //Si coinciden --> ha llegado por lo que ÉXITO
+            : NodoResultado.Ejecutando; // Si no sigue en camino --> EJECUTANDO
     }
 }
 
+
+//---------- NODO HOJA CON CONDICIÓN  ---------- //
+/*
+ *  No hace nada activamente, solo espera a que el recepcionista 
+ *  cambie una variable en el cliente (checkInCompletado = true).
+ */
 public class NodoEsperarCheckInConfirmado : NodoBT
 {
     private ClienteBT cliente;
@@ -83,16 +113,23 @@ public class NodoEsperarCheckInConfirmado : NodoBT
         this.cliente = cliente;
     }
 
-    public override NodoResultado Tick()
-    {
+    public override NodoResultado Tick() 
+    {  
+        //Llama a CheckInConfirmado y devuelve el resultado en consecuencia
         return cliente.CheckInConfirmado() ? NodoResultado.Exito : NodoResultado.Ejecutando;
     }
 }
 
+
+//---------- NODO HOJA CON CONDICIÓN  ---------- //
+/*
+ * Su propósito es esperar en una cola, pero no realiza una 
+ * acción activa como moverse o cambiar algo visual.
+ */
 public class NodoColaRecepcion : NodoBT
 {
     private readonly ClienteBT cliente;
-    private readonly GameManager gameManager;
+    private readonly GameManager gameManager; //para acceder a colas y estado recepción
     private bool registrado = false;
 
     public NodoColaRecepcion(ClienteBT cliente, GameManager gameManager)
@@ -103,22 +140,32 @@ public class NodoColaRecepcion : NodoBT
 
     public override NodoResultado Tick()
     {
-        if (!registrado)
+        if (!registrado) //Si el cliente no ha sido encolado se encola
         {
             gameManager.ClienteARecepcion(cliente);
-            registrado = true;
+            registrado = true; // y se marca como registrado para que no vuelva a encolarse
         }
+        //Cada vez que se evalua al nodo preguntará al gamemanager si se puede hacer el checkin al cliente,
+        // para ello debe ser el primero en la cola y la recepción estar libre
         return gameManager.ClientePuedeSerRegistrado(cliente)
             ? NodoResultado.Exito
             : NodoResultado.Ejecutando;
     }
 }
 
+
+//---------- NODO ACCIÓN ---------- //
+/*
+ * Representa el momento en que el cliente está dentro de la sala de entrevistas.
+ * Simula que la entrevista dura unos segundos.
+ * Al finalizar, determina si el cliente ha sido aprobado y qué tipo de animal desea adoptar.
+ * Además libera la sala para el siguiente cliente.s
+ */
 public class NodoEntrevista : NodoBT
 {
     private readonly ClienteBT cliente;
-    private bool hecha = false;
-    private float tiempo;
+    private bool hecha = false; //marcará si se ha realizado la entrevista
+    private float tiempo; //para simulación
 
     public NodoEntrevista(ClienteBT cliente)
     {
@@ -127,20 +174,26 @@ public class NodoEntrevista : NodoBT
 
     public override NodoResultado Tick()
     {
-        if (hecha) return NodoResultado.Exito;
-        tiempo += Time.deltaTime;
-        if (tiempo >= 4f)
+        if (hecha) return NodoResultado.Exito; // si se ha realizado devuelve ÉXITO
+        tiempo += Time.deltaTime; //se va sumando el tiempo transcurrido
+        if (tiempo >= 4f) // 4 segundos al menos por entrevista
         {
-            cliente.RealizarResultadoEntrevista();
-            cliente.LiberarSalaEntrevista();
-            hecha = true;
+            cliente.RealizarResultadoEntrevista(); //aprobado o suspenso
+            cliente.LiberarSalaEntrevista(); 
+            hecha = true; // marcamos entrevista como hecha para no repetirla
             return NodoResultado.Exito;
         }
-        return NodoResultado.Ejecutando;
+        return NodoResultado.Ejecutando;//si aún no ha pasado el tiempo suficiente se sigue ejecutando
     }
 }
 
-public class NodoAdopcion : NodoBT
+
+//---------- NODO ACCIÓN ---------- //
+/*
+ * Simula un tiempo de espera mientras el cliente explora la zona de adopción.
+ * Una vez pasa ese tiempo (5 segundos), el cliente adopta un animal disponible (perro o gato).
+ */
+public class NodoAdopcion : NodoBT //Igual que el nodo entrevista
 {
     private readonly ClienteBT cliente;
     private bool hecho = false;
@@ -165,6 +218,8 @@ public class NodoAdopcion : NodoBT
     }
 }
 
+
+//---------- NODO DECOR CONDCIONAL ---------- //
 public class NodoColaEntrevista : NodoBT
 {
     private readonly ClienteBT cliente;
@@ -179,21 +234,23 @@ public class NodoColaEntrevista : NodoBT
 
     public override NodoResultado Tick()
     {
-        if (!registrado)
+        if (!registrado) //Si el cliente no se ha registrado en la cola se hace 
         {
             gameManager.ClienteEnSalaEspera(cliente);
-            registrado = true;
+            registrado = true; //para que no se repita en cada tick()
         }
-        return gameManager.ClientePuedeEntrevistarse(cliente)
-            ? NodoResultado.Exito
-            : NodoResultado.Ejecutando;
+        return gameManager.ClientePuedeEntrevistarse(cliente) 
+            ? NodoResultado.Exito // si el cliente está primero en la cola y la sala libre ÉXITO
+            : NodoResultado.Ejecutando; // sino se sigue ejcutando
     }
 }
 
+
+//---------- NODO CONDCIONAL ---------- //
 public class NodoCondicional : NodoBT
 {
-    private readonly Func<bool> condicion;
-    private readonly NodoBT hijo;
+    private readonly Func<bool> condicion; // condición a evaluar
+    private readonly NodoBT hijo; // el nodo que se ejecutará solo si la condición es verdadera
 
     public NodoCondicional(Func<bool> condicion, NodoBT hijo)
     {
@@ -203,10 +260,15 @@ public class NodoCondicional : NodoBT
 
     public override NodoResultado Tick()
     {
+        /*
+         * Si la condición NO se cumple, el nodo se considera completado con éxito 
+         * sin hacer nada. se omite el nodo hijo, pero no se detiene el árbol.
+         */
         if (!condicion()) return NodoResultado.Exito;
-        return hijo.Tick();
+        return hijo.Tick(); //Si la condición sí se cumple, se evalúa el nodo hijo.
     }
 }
+
 
 public class ClienteBT : MonoBehaviour
 {
@@ -216,7 +278,7 @@ public class ClienteBT : MonoBehaviour
 
     [Header("Puntos")] public Transform puntoCheckIn, salaEspera, salaEntrevista, zonaGatos, zonaPerros, checkout, salida;
 
-    private bool registrado = false, entrevistado = false, aprobado = false, enSalaEspera = false;
+    private bool entrevistado = false, aprobado = false, enSalaEspera = false;
     private bool quierePerro = false;
     private GameObject animalAsignado;
     private bool checkInCompletado = false;
@@ -227,7 +289,7 @@ public class ClienteBT : MonoBehaviour
 
     public string DetectarZonaActual() => detectarZona != null ? detectarZona.zonaActual : "FueraDeZona";
     public Camera ClienteCam => GetComponentInChildren<Camera>();
-    public event System.Action OnClienteSalido;
+    public event System.Action OnClienteSalido; //para cuando el cliente ha salido del refugio
 
 
     public void InicializarCliente(Transform checkIn, Transform espera, Transform entrevista, Transform gatos, Transform perros, Transform check, Transform outRefugio, GameManager manager)
@@ -259,32 +321,38 @@ public class ClienteBT : MonoBehaviour
 
     void ConstruirArbol()
     {
+        //-------- 1. PROCESO DE CHECK-IN --------//
         NodoBT checkInSecuencia = new NodoSecuencia(new List<NodoBT> {
-            new NodoColaRecepcion(this, gameManager),
-            new NodoAccion(() => IrA(puntoCheckIn)),
-            new NodoEsperarZona(this, () => "CheckIn"),
-            new NodoEsperarCheckInConfirmado(this)
+            new NodoColaRecepcion(this, gameManager), //encolar
+            new NodoAccion(() => IrA(puntoCheckIn)), //ir fisicamente al checkin
+            new NodoEsperarZona(this, () => "CheckIn"), //esperar a estar en el checkin
+            new NodoEsperarCheckInConfirmado(this) //esperar a que el recepcionista confirme
         });
 
+        //-------- 2. IR A SALA DE ESPERA --------//
         NodoBT irEspera = new NodoAccion(() => IrA(salaEspera));
         NodoBT esperarSala = new NodoEsperarZona(this, () => "SalaEspera");
 
+        //-------- 3. COLA PARA ENTREVISTA --------//
         NodoBT registroCola = new NodoColaEntrevista(this, gameManager);
 
+        //-------- 4. IR A SALA ENTREVISTA Y SIMULACIÓN --------//
         NodoBT irEntrevista = new NodoAccion(() => IrA(salaEntrevista));
         NodoBT esperarEntrevista = new NodoEsperarZona(this, () => "SalaEntrevista");
-
         NodoBT entrevista = new NodoEntrevista(this);
 
+        //-------- 5. ADOPCIÓN (SOLO SI HA APROBADO) --------//
         NodoBT adopcion = new NodoSecuencia(new List<NodoBT> {
             new NodoAccion(() => IrA(quierePerro ? zonaPerros : zonaGatos)),
             new NodoEsperarZona(this, () => quierePerro ? "ZonaPerros" : "ZonaGatos"),
             new NodoAdopcion(this)
         });
 
+        //-------- 6. CHECK-OUT Y SALIDA --------//
         NodoBT irCheckout = new NodoAccion(() => IrA(checkout));
         NodoBT irSalida = new NodoAccion(() => IrA(salida, SalirDelRefugio));
 
+        // Se juntan todos los nodos anteriores en un único NodoSecuencia
         var pasos = new List<NodoBT> {
             checkInSecuencia,
             irEspera, esperarSala,
