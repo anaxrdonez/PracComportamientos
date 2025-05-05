@@ -6,18 +6,19 @@ using UnityUtils;
 namespace UtilityAI
 {
     /// <summary>
-    /// Contexto compartido para AIActions. Contiene referencias a componentes
-    /// y datos de percepciones/estados normalizados.
+    /// Contexto compartido para AIActions. Contiene referencias a componentes y datos de percepciones/estados normalizados.
     /// </summary>
     public class Context
     {
         // Componentes cacheados
-        public Brain Brain { get; }
-        public NavMeshAgent Agent { get; }
-        public Sensor Sensor { get; }
+        public Brain brain;
+        public NavMeshAgent agent;
+        public Sensor sensor;
+        public Transform target;
+
 
         // Especie de la mascota (Cat/Dog) tomada desde el Brain
-        public Species Species => Brain.species;
+        public Species Species => brain.species;
 
         // Claves internas para datos en _data
         private static class Keys
@@ -40,25 +41,19 @@ namespace UtilityAI
         public Context(Brain brain)
         {
             Preconditions.CheckNotNull(brain, nameof(brain));
-            Brain = brain;
-            Agent = brain.gameObject.GetOrAdd<NavMeshAgent>();
-            Sensor = brain.gameObject.GetOrAdd<Sensor>();
-            _data = new Dictionary<string, object>();
+            this.brain = brain;
 
-            // Inicializa valores por defecto
-            Hunger = 0f;
-            Sleep = 0f;
-            Bathroom = 0f;
-            Fun = 0f;
-            AdopterInArea = false;
-            CaretakerAvailable = false;
-            PenOpen = false;
-            Adopted = false;
-            FoodAvailable = false;
-            ToysAvailable = false;
+            // Cachear componentes principales que gestiona Brain.UpdateContext
+            var go = brain.gameObject;
+            this.agent = go.GetOrAdd<NavMeshAgent>();
+            this.sensor = go.GetOrAdd<Sensor>();
+
+            _data = new Dictionary<string, object>();
+            // No inicializar valores por defecto: los datos de necesidades y flags
+            // se establecen desde PetNeeds y Sensor en Brain.UpdateContext().
         }
 
-        // Propiedades fuertemente tipadas operando sobre _data
+        #region Propiedades tipadas
         public float Hunger
         {
             get => GetData<float>(Keys.Hunger);
@@ -109,6 +104,7 @@ namespace UtilityAI
             get => GetData<bool>(Keys.ToysAvailable);
             set => SetData(Keys.ToysAvailable, value);
         }
+        #endregion
 
         /// <summary>
         /// Obtiene un valor tipado de _data, o default si no existe.

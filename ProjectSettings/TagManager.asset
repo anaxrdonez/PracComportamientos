@@ -5,6 +5,15 @@ TagManager:
   serializedVersion: 2
   tags:
   - Zona
+  - Car
+  - Key
+  - food
+  - bed
+  - BathroomCat
+  - BathroomDog
+  - Toy
+  - Adopter
+  - Food
   layers:
   - Default
   - TransparentFX

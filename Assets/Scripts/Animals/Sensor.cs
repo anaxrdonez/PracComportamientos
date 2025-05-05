@@ -7,7 +7,7 @@ namespace UtilityAI
     [RequireComponent(typeof(SphereCollider))]
     public class Sensor : MonoBehaviour
     {
-        public float detectionRadius = 10f;
+        public float detectionRadius = 10000f;
         public List<string> targetTags = new();
 
         readonly List<Transform> detectedObjects = new(10);

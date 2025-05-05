@@ -7,7 +7,10 @@ namespace UtilityAI
     // Especies para elegir el tipo de baño apropiado
     public enum Species { Cat, Dog }
 
-    [RequireComponent(typeof(NavMeshAgent), typeof(Sensor))]
+    [RequireComponent(typeof(NavMeshAgent))]
+    [RequireComponent(typeof(Sensor))]
+    [RequireComponent(typeof(PetNeeds))]
+    [RequireComponent(typeof(AnimationController))]
     public class Brain : MonoBehaviour
     {
         [Header("Lista de acciones (ScriptableObjects)")]
@@ -67,15 +70,15 @@ namespace UtilityAI
             context.SetData("fun", 1f - needs.Fun01);
 
             // pull-percepciones desde Sensor (tags configurados en Sensor.targetTags)
-            bool hasFood = sensor.GetClosestTarget("Food") != null;
+            bool hasFood = sensor.GetClosestTarget("food") != null;
             bool hasToy = sensor.GetClosestTarget("Toy") != null;
-            bool hasAdopter = sensor.GetClosestTarget("Adopter") != null;
-            bool hasCaretaker = sensor.GetClosestTarget("Caretaker") != null;
+            //bool hasAdopter = sensor.GetClosestTarget("Adopter") != null;
+           // bool hasCaretaker = sensor.GetClosestTarget("Caretaker") != null;
 
             context.SetData("foodAvailable", hasFood);
             context.SetData("toysAvailable", hasToy);
-            context.SetData("adopterInArea", hasAdopter);
-            context.SetData("caretakerAvailable", hasCaretaker);
+           // context.SetData("adopterInArea", hasAdopter);
+           // context.SetData("caretakerAvailable", hasCaretaker);
 
             // penOpen y adopted pueden venir de otros sistemas y ajustarse en Context externamente
         }

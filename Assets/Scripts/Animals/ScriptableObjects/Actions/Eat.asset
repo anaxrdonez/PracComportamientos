@@ -9,7 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5086d3169275968499ea1899ae37afe5, type: 3}
-  m_Name: IdleConsideration
+  m_Script: {fileID: 11500000, guid: 4a595bfab24012a4c812e3d6d61b5638, type: 3}
+  m_Name: Eat
   m_EditorClassIdentifier: 
-  value: 0.1
+  targetTag: Food
+  consideration: {fileID: 11400000, guid: 30eab4b0e6eb98e40ae636d7a261d256, type: 2}
+  idleDuration: 2

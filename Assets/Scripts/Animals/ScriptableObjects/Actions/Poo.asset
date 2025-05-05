@@ -9,7 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5086d3169275968499ea1899ae37afe5, type: 3}
-  m_Name: IdleConsideration
+  m_Script: {fileID: 11500000, guid: 915d59c0fae44f04696d2e7bb4c91b10, type: 3}
+  m_Name: Poo
   m_EditorClassIdentifier: 
-  value: 0.1
+  targetTag: 
+  consideration: {fileID: 11400000, guid: cfcbe08508159854db254c86bf69a0e9, type: 2}
+  animationTrigger: UseBathroom
