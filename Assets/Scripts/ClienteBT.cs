@@ -163,29 +163,50 @@ public class NodoColaRecepcion : NodoBT
  */
 public class NodoEntrevista : NodoBT
 {
-    private readonly ClienteBT cliente;
-    private bool hecha = false; //marcará si se ha realizado la entrevista
-    private float tiempo; //para simulación
+        private readonly ClienteBT cliente;
 
-    public NodoEntrevista(ClienteBT cliente)
+        public NodoEntrevista(ClienteBT cliente)
+        {
+            this.cliente = cliente;
+        }
+
+        public override NodoResultado Tick()
+        {
+            // Espera pasiva: el EntrevistadorFSM gestiona la entrevista.
+            // Este nodo sólo comprueba si ya ha finalizado.
+            return cliente.EstaEntrevistado()
+                ? NodoResultado.Exito
+                : NodoResultado.Ejecutando;
+        }
+
+}
+public class NodoAvisarEntrevistador : NodoBT
+{
+    private readonly ClienteBT cliente;
+    private bool notificado = false;
+
+    public NodoAvisarEntrevistador(ClienteBT cliente)
     {
         this.cliente = cliente;
     }
 
     public override NodoResultado Tick()
     {
-        if (hecha) return NodoResultado.Exito; // si se ha realizado devuelve ÉXITO
-        tiempo += Time.deltaTime; //se va sumando el tiempo transcurrido
-        if (tiempo >= 4f) // 4 segundos al menos por entrevista
+        if (notificado) return NodoResultado.Exito;
+
+        EntrevistadorFSM entrevistador = GameObject.FindObjectOfType<EntrevistadorFSM>();
+        if (entrevistador != null)
         {
-            cliente.RealizarResultadoEntrevista(); //aprobado o suspenso
-            cliente.LiberarSalaEntrevista(); 
-            hecha = true; // marcamos entrevista como hecha para no repetirla
+            entrevistador.ClienteLlega(cliente);
+            Debug.Log(" Entrevistador notificado por el cliente: " + cliente.name);
+            notificado = true;
             return NodoResultado.Exito;
         }
-        return NodoResultado.Ejecutando;//si aún no ha pasado el tiempo suficiente se sigue ejecutando
+
+        return NodoResultado.Fallo;
     }
 }
+
 
 
 //---------- NODO ACCIÓN ---------- //
@@ -242,7 +263,7 @@ public class NodoColaEntrevista : NodoBT
         }
 
         bool puede = gameManager.ClientePuedeEntrevistarse(cliente);
-        Debug.Log($"🔄 Cliente {cliente.name} intentando obtener permiso para entrevista. Puede: {puede}");
+        
 
         if (puede)
         {
@@ -299,6 +320,8 @@ public class ClienteBT : MonoBehaviour
     private NodoResultado estadoActual = NodoResultado.Ejecutando;
     private Transform destinoActual = null;
 
+    public bool Aprobado() => aprobado; //apto para adoptar
+
     public string DetectarZonaActual() => detectarZona != null ? detectarZona.zonaActual : "FueraDeZona";
     public Camera ClienteCam => GetComponentInChildren<Camera>();
     public event System.Action OnClienteSalido; //para cuando el cliente ha salido del refugio
@@ -317,6 +340,10 @@ public class ClienteBT : MonoBehaviour
 
     public void InicializarCliente(Transform checkIn, Transform espera, Transform entrevista, Transform gatos, Transform perros, Transform check, Transform outRefugio, GameManager manager)
     {
+        aprobado = false;
+        entrevistado = false;
+        permisoEntrevista = false;
+        checkInCompletado = false;
         puntoCheckIn = checkIn;
         salaEspera = espera;
         salaEntrevista = entrevista;
@@ -359,12 +386,13 @@ public class ClienteBT : MonoBehaviour
         //-------- 3. COLA PARA ENTREVISTA --------//
         NodoBT registroCola = new NodoColaEntrevista(this, gameManager);
 
-        //-------- 4. IR A SALA ENTREVISTA Y SIMULACIÓN --------//
+        //-------- 4. IR A SALA ENTREVISTA Y NOTIFICAR --------//
         NodoBT irEntrevista = new NodoCondicional(
-            () => TienePermisoEntrevista(),
-            new NodoAccion(() => IrA(salaEntrevista))
-        );
+               () => TienePermisoEntrevista(),
+               new NodoAccion(() => IrA(salaEntrevista))
+           );
         NodoBT esperarEntrevista = new NodoEsperarZona(this, () => "SalaEntrevista");
+        NodoBT avisarEntrevistador = new NodoAvisarEntrevistador(this);
         NodoBT entrevista = new NodoEntrevista(this);
 
         //-------- 5. ADOPCIÓN (SOLO SI HA APROBADO) --------//
@@ -383,7 +411,7 @@ public class ClienteBT : MonoBehaviour
             checkInSecuencia,
             irEspera, esperarSala,
             registroCola,
-            irEntrevista, esperarEntrevista,
+            irEntrevista, esperarEntrevista,avisarEntrevistador,
             entrevista,
             new NodoCondicional(() => aprobado, adopcion),
             irCheckout,
@@ -413,7 +441,7 @@ public class ClienteBT : MonoBehaviour
         onLlegada?.Invoke();
         return NodoResultado.Exito;
     }
-
+    
     public void RealizarResultadoEntrevista()
     {
         aprobado = UnityEngine.Random.value > 0.5f;

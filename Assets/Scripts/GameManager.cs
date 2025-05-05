@@ -167,11 +167,21 @@ public class GameManager : MonoBehaviour
         if (clienteConPermisoEntrevista == cliente)
         {
             cliente.OtorgarPermisoEntrevista();
-            clienteConPermisoEntrevista = null; // Limpia para el siguiente
+
+            //Notificar al entrevistador directamente
+            EntrevistadorFSM entrevistador = FindObjectOfType<EntrevistadorFSM>();
+            if (entrevistador != null)
+            {
+                entrevistador.ClienteLlega(cliente);
+                Debug.Log(" Entrevistador notificado de la llegada del cliente.");
+            }
+
+            clienteConPermisoEntrevista = null;
             return true;
         }
         return false;
     }
+
 
 
     public void ClienteARecepcion(ClienteBT cliente)

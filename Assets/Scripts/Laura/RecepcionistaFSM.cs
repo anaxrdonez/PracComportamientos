@@ -36,7 +36,7 @@ public class RecepcionistaFSM : MonoBehaviour
     {
         while (true)
         {
-            Debug.Log($"📌 Estado actual: {estadoActual}");
+            //Debug.Log($"📌 Estado actual: {estadoActual}");
 
             switch (estadoActual)
             {
@@ -44,37 +44,37 @@ public class RecepcionistaFSM : MonoBehaviour
                     if (colaClientes.Count > 0)
                     {
                         clienteActual = colaClientes.Dequeue();
-                        Debug.Log("🎯 Cliente dequeued y listo para registrar");
+                        //Debug.Log("🎯 Cliente dequeued y listo para registrar");
                         estadoActual = Estado.Registrando;
                     }
                     break;
 
                 case Estado.Registrando:
-                    Debug.Log("✍️ Esperando que el cliente llegue a CheckIn...");
+                    //Debug.Log("✍️ Esperando que el cliente llegue a CheckIn...");
                     while (clienteActual != null && clienteActual.DetectarZonaActual() != "CheckIn")
                     {
                         yield return null;
                     }
 
-                    Debug.Log("📍 Cliente ha llegado a CheckIn (confirmado por zona)");
+                   // Debug.Log("📍 Cliente ha llegado a CheckIn (confirmado por zona)");
                     yield return new WaitForSeconds(2f); // Simula tiempo de registro
 
                     if (clienteActual != null)
                     {
-                        Debug.Log("✅ Confirmando check-in del cliente");
+                       // Debug.Log("✅ Confirmando check-in del cliente");
                         clienteActual.ConfirmarCheckIn();
                         gameManager?.LiberarRecepcion(); // 🔓 Liberar aquí la recepción
                     }
                     else
                     {
-                        Debug.LogWarning("⚠️ clienteActual es null en Registrando");
+                       // Debug.LogWarning("⚠️ clienteActual es null en Registrando");
                     }
 
                     estadoActual = Estado.Informando;
                     break;
 
                 case Estado.Informando:
-                    Debug.Log("📋 Informando al cliente.");
+                    //Debug.Log("📋 Informando al cliente.");
                     yield return new WaitForSeconds(1f);
                     estadoActual = Estado.EsperandoCliente;
                     break;
