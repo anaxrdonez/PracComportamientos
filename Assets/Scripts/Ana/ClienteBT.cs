@@ -388,8 +388,19 @@ public class ClienteBT : MonoBehaviour
         });
 
         //-------- 2. IR A SALA DE ESPERA --------//
-        NodoBT irEspera = new NodoAccion(() => { MostrarEstado("Voy a la sala de espera"); return IrA(salaEspera); });
-        NodoBT esperarSala = new NodoEsperarZona(this, () => "SalaEspera");
+        NodoBT irEspera = new NodoAccion(() => {
+            MostrarEstado("Voy a la sala de espera");
+            return IrA(salaEspera);
+        });
+
+        NodoBT esperarSala = new NodoSecuencia(new List<NodoBT> {
+            new NodoEsperarZona(this, () => "SalaEspera"),
+            new NodoAccion(() => {
+                MostrarEstado("Esperando mi turno...");
+                return NodoResultado.Exito;
+            })
+        });
+
 
         //-------- 3. COLA PARA ENTREVISTA --------//
         NodoBT registroCola = new NodoColaEntrevista(this, gameManager);
