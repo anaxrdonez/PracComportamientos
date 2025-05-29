@@ -308,6 +308,7 @@ public class ClienteBT : MonoBehaviour
     private NavMeshAgent agente;
     private DetectarZona detectarZona;
     private GameManager gameManager;
+    private ClienteEstadoUI estadoUI;
 
     [Header("Puntos")] public Transform puntoCheckIn, salaEspera, salaEntrevista, zonaGatos, zonaPerros, checkout, salida;
 
@@ -358,8 +359,15 @@ public class ClienteBT : MonoBehaviour
     {
         agente = GetComponent<NavMeshAgent>();
         detectarZona = GetComponent<DetectarZona>();
+        estadoUI = GetComponentInChildren<ClienteEstadoUI>();
+
         ConstruirArbol();
     }
+    private void MostrarEstado(string mensaje)
+    {
+        estadoUI?.ActualizarTexto(mensaje);
+    }
+
 
     void Update()
     {
@@ -373,14 +381,14 @@ public class ClienteBT : MonoBehaviour
     {
         //-------- 1. PROCESO DE CHECK-IN --------//
         NodoBT checkInSecuencia = new NodoSecuencia(new List<NodoBT> {
-            new NodoColaRecepcion(this, gameManager), //encolar
-            new NodoAccion(() => IrA(puntoCheckIn)), //ir fisicamente al checkin
-            new NodoEsperarZona(this, () => "CheckIn"), //esperar a estar en el checkin
-            new NodoEsperarCheckInConfirmado(this) //esperar a que el recepcionista confirme
+            new NodoColaRecepcion(this, gameManager),
+            new NodoAccion(() => { MostrarEstado("Voy al Check-In"); return IrA(puntoCheckIn); }),
+            new NodoEsperarZona(this, () => "CheckIn"),
+            new NodoEsperarCheckInConfirmado(this)
         });
 
         //-------- 2. IR A SALA DE ESPERA --------//
-        NodoBT irEspera = new NodoAccion(() => IrA(salaEspera));
+        NodoBT irEspera = new NodoAccion(() => { MostrarEstado("Voy a la sala de espera"); return IrA(salaEspera); });
         NodoBT esperarSala = new NodoEsperarZona(this, () => "SalaEspera");
 
         //-------- 3. COLA PARA ENTREVISTA --------//
@@ -388,23 +396,28 @@ public class ClienteBT : MonoBehaviour
 
         //-------- 4. IR A SALA ENTREVISTA Y NOTIFICAR --------//
         NodoBT irEntrevista = new NodoCondicional(
-               () => TienePermisoEntrevista(),
-               new NodoAccion(() => IrA(salaEntrevista))
-           );
+            () => TienePermisoEntrevista(),
+            new NodoAccion(() => { MostrarEstado("Voy a la sala de entrevista"); return IrA(salaEntrevista); })
+        );
         NodoBT esperarEntrevista = new NodoEsperarZona(this, () => "SalaEntrevista");
         NodoBT avisarEntrevistador = new NodoAvisarEntrevistador(this);
         NodoBT entrevista = new NodoEntrevista(this);
 
         //-------- 5. ADOPCIÓN (SOLO SI HA APROBADO) --------//
         NodoBT adopcion = new NodoSecuencia(new List<NodoBT> {
-            new NodoAccion(() => IrA(quierePerro ? zonaPerros : zonaGatos)),
+            new NodoAccion(() => {
+                string zona = quierePerro ? "zona de perros" : "zona de gatos";
+                MostrarEstado($"Voy a la {zona}");
+                return IrA(quierePerro ? zonaPerros : zonaGatos);
+            }),
             new NodoEsperarZona(this, () => quierePerro ? "ZonaPerros" : "ZonaGatos"),
             new NodoAdopcion(this)
         });
 
         //-------- 6. CHECK-OUT Y SALIDA --------//
-        NodoBT irCheckout = new NodoAccion(() => IrA(checkout));
-        NodoBT irSalida = new NodoAccion(() => IrA(salida, SalirDelRefugio));
+        NodoBT irCheckout = new NodoAccion(() => { MostrarEstado("Voy al checkout"); return IrA(checkout); });
+        NodoBT irSalida = new NodoAccion(() => { MostrarEstado("Saliendo del refugio"); return IrA(salida, SalirDelRefugio); });
+
 
         // Se juntan todos los nodos anteriores en un único NodoSecuencia
         var pasos = new List<NodoBT> {
