@@ -309,6 +309,7 @@ public class ClienteBT : MonoBehaviour
     private DetectarZona detectarZona;
     private GameManager gameManager;
     private ClienteEstadoUI estadoUI;
+    private Animator animador;
 
     [Header("Puntos")] public Transform puntoCheckIn, salaEspera, salaEntrevista, zonaGatos, zonaPerros, checkout, salida;
 
@@ -361,8 +362,14 @@ public class ClienteBT : MonoBehaviour
         detectarZona = GetComponent<DetectarZona>();
         estadoUI = GetComponentInChildren<ClienteEstadoUI>();
 
+        animador = GetComponentInChildren<Animator>();
+        if (animador == null)
+            Debug.LogWarning("⚠️ No se encontró Animator en el cliente.");
+
         ConstruirArbol();
     }
+
+
     private void MostrarEstado(string mensaje)
     {
         estadoUI?.ActualizarTexto(mensaje);
@@ -372,10 +379,15 @@ public class ClienteBT : MonoBehaviour
     void Update()
     {
         if (estadoActual == NodoResultado.Ejecutando && arbol != null)
-        {
             estadoActual = arbol.Tick();
+
+        if (agente != null && animador != null)
+        {
+            bool caminando = agente.velocity.magnitude > 0.1f;
+            animador.SetBool("isWalking", caminando);
         }
     }
+
 
     void ConstruirArbol()
     {
