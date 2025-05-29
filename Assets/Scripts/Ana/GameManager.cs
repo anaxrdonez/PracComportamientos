@@ -118,7 +118,7 @@ public class GameManager : MonoBehaviour
 
             if (limpiadorScript != null)
             {
-                limpiadorScript.InicializarLimpiador(almacen, puntosPatrulla, salas, this);
+                limpiadorScript.InicializarLimpiador(puntosPatrulla, 3f, almacen, this);
 
                 NavMeshAgent agente = nuevoLimpiador.GetComponent<NavMeshAgent>();
                 if (agente != null)
