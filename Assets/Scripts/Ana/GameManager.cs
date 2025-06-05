@@ -15,6 +15,17 @@ public class GameManager : MonoBehaviour
     public Transform puntoSpawnClientes;
     public Transform puntoCheckIn, salaEspera, salaEntrevista, zonaGatos, zonaPerros, checkout, salida;
 
+    [Header("Puntos de Referencia - Animales")]
+    [Header("Zonas de Perros")]
+    public Transform puntoComidaPerros;
+    public Transform puntoDescansoPerros;
+    public Transform puntoJuegoPerros;
+
+    [Header("Zonas de Gatos")]
+    public Transform puntoComidaGatos;
+    public Transform puntoDescansoGatos;
+    public Transform puntoJuegoGatos;
+
     [Header("Puntos de Referencia - Limpiadores")]
     public Transform puntoSpawnLimpiadores;
     public Transform almacen;
@@ -51,7 +62,7 @@ public class GameManager : MonoBehaviour
         foreach (var sala in salas)
             estadoSalas[sala] = false;
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 3; i++)
         {
             GameObject perro = Instantiate(perroPrefab, zonaPerros.position, Quaternion.identity);
             GameObject gato = Instantiate(gatoPrefab, zonaGatos.position, Quaternion.identity);

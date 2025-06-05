@@ -497,8 +497,24 @@ public class ClienteBT : MonoBehaviour
         animalAsignado = gameManager.AsignarAnimal(quierePerro);
         if (animalAsignado != null)
         {
-            animalAsignado.transform.SetParent(transform);
-            animalAsignado.transform.localPosition = new Vector3(0.5f, 0, 0);
+            // Asignar seguimiento
+            AnimalSeguidor seguidor = animalAsignado.GetComponent<AnimalSeguidor>();
+            if (seguidor == null)
+                seguidor = animalAsignado.AddComponent<AnimalSeguidor>();
+            seguidor.AsignarCliente(this.transform);
+
+            // Desactivar utilidad
+            AnimalUS us = animalAsignado.GetComponent<AnimalUS>();
+            if (us != null)
+                Destroy(us);
+
+            // 🔁 Suscribirse al evento de salida para destruir al animal
+            this.OnClienteSalido += () =>
+            {
+                if (animalAsignado != null)
+                    Destroy(animalAsignado);
+            };
+
             Debug.Log(name + " ha adoptado un " + (quierePerro ? "perro" : "gato"));
         }
         else
@@ -506,6 +522,7 @@ public class ClienteBT : MonoBehaviour
             Debug.LogWarning("No hay animales disponibles para asignar a " + name);
         }
     }
+
 
     public void ConfirmarCheckIn()
     {
