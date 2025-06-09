@@ -7,6 +7,7 @@ public class CameraSwitcher : MonoBehaviour
     private List<Camera> clienteCams = new List<Camera>();
     private Camera mainCam;
     private int camIndex = -1;
+    public static Camera CamaraActiva { get; private set; } 
 
     [Header("Objetos según modo de cámara")]
     public GameObject clienteModeObject;  // Asignar en el Inspector
@@ -44,6 +45,8 @@ public class CameraSwitcher : MonoBehaviour
 
         camIndex = (camIndex + 1) % clienteCams.Count;
         clienteCams[camIndex].enabled = true;
+        CamaraActiva = clienteCams[camIndex];
+
 
         // Toggle de GameObjects
         clienteModeObject?.SetActive(true);
@@ -56,6 +59,7 @@ public class CameraSwitcher : MonoBehaviour
 
         if (mainCam != null)
             mainCam.enabled = true;
+        CamaraActiva = mainCam;
 
         camIndex = -1;
 

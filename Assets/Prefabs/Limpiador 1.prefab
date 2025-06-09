@@ -435,6 +435,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6857260112676169151}
   - component: {fileID: 4643344234459573864}
+  - component: {fileID: 2683771666723875281}
   m_Layer: 0
   m_Name: CanvasEstado
   m_TagString: Untagged
@@ -472,6 +473,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   textoEstado: {fileID: 2498265648501193999}
   camara: {fileID: 0}
+--- !u!114 &2683771666723875281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1971726266001390688}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7b7337f65f6bef4e8c18132ff981cb8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2335442592318472614
 GameObject:
   m_ObjectHideFlags: 0

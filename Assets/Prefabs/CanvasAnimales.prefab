@@ -144,6 +144,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3721694429964087676}
   - component: {fileID: 6769192825195635550}
+  - component: {fileID: 9115447749100608678}
   m_Layer: 0
   m_Name: CanvasAnimales
   m_TagString: Untagged
@@ -181,6 +182,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   textoEstado: {fileID: 4024604893819101677}
   camara: {fileID: 0}
+--- !u!114 &9115447749100608678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3626944769130976524}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7b7337f65f6bef4e8c18132ff981cb8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &9181431905209936787
 GameObject:
   m_ObjectHideFlags: 0
