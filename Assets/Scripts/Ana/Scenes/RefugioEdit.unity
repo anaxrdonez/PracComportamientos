@@ -2024,6 +2024,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2191666470857331508, guid: 8b63f536dcb9512418bb18c53c2565c6, type: 3}
   m_PrefabInstance: {fileID: 2566988029259374688}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &247550998 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 410974520245823083, guid: 1aaf45fea9e84da4dbd0224c5d4c2ffe, type: 3}
+  m_PrefabInstance: {fileID: 1191988259}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &258736916
 GameObject:
   m_ObjectHideFlags: 0
@@ -2317,7 +2322,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &267631950
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5834,6 +5839,12 @@ MonoBehaviour:
   zonaPerros: {fileID: 2054215575}
   checkout: {fileID: 142633436}
   salida: {fileID: 1445140417}
+  puntoComidaPerros: {fileID: 490784943}
+  puntoDescansoPerros: {fileID: 2048463764}
+  puntoJuegoPerros: {fileID: 280907232}
+  puntoComidaGatos: {fileID: 707480749}
+  puntoDescansoGatos: {fileID: 1783365070}
+  puntoJuegoGatos: {fileID: 1804743883}
   puntoSpawnLimpiadores: {fileID: 1445140417}
   almacen: {fileID: 1057088732}
   puntosPatrulla:
@@ -5845,7 +5856,7 @@ MonoBehaviour:
   - {fileID: 41894393}
   - {fileID: 2054215575}
   - {fileID: 142633436}
-  maxClientes: 4
+  maxClientes: 3
   numLimpiadores: 3
 --- !u!4 &648586352
 Transform:
@@ -9244,7 +9255,7 @@ Transform:
   m_GameObject: {fileID: 1103040277}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -12.18, y: 0, z: 7.12}
+  m_LocalPosition: {x: 17.7, y: 0, z: 2.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9793,7 +9804,7 @@ PrefabInstance:
     - target: {fileID: 2749117374214474800, guid: 1aaf45fea9e84da4dbd0224c5d4c2ffe, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: b42940aef2afb8346bfc984741462a8a, type: 2}
+      objectReference: {fileID: 9100000, guid: 96bcfc098c13fdc49b8394bb466db7b9, type: 2}
     - target: {fileID: 9212053721651348683, guid: 1aaf45fea9e84da4dbd0224c5d4c2ffe, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.12071379
@@ -9849,13 +9860,35 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 410974520245823083, guid: 1aaf45fea9e84da4dbd0224c5d4c2ffe, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1191988262}
   m_SourcePrefab: {fileID: 100100000, guid: 1aaf45fea9e84da4dbd0224c5d4c2ffe, type: 3}
 --- !u!4 &1191988260 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9212053721651348683, guid: 1aaf45fea9e84da4dbd0224c5d4c2ffe, type: 3}
   m_PrefabInstance: {fileID: 1191988259}
   m_PrefabAsset: {fileID: 0}
+--- !u!95 &1191988261 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 2749117374214474800, guid: 1aaf45fea9e84da4dbd0224c5d4c2ffe, type: 3}
+  m_PrefabInstance: {fileID: 1191988259}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1191988262
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 247550998}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32bc2404843c89947992f3d15a8d9a88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  estadoActual: 0
+  animador: {fileID: 1191988261}
 --- !u!4 &1205161904 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1190995455649073363, guid: fa9b3057ee026bb41a40d9f7eabfef7c, type: 3}
@@ -27700,7 +27733,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: Dog_001
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 6764935964214722342, guid: 221b71ec2b9125742902e3d5ba9dc2ba, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 6877848871564756698, guid: 221b71ec2b9125742902e3d5ba9dc2ba, type: 3}
+    - {fileID: 12311120487977220, guid: 221b71ec2b9125742902e3d5ba9dc2ba, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -35338,7 +35377,9 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 4f2e6c00c35c1d94abf15453d511cadc, type: 2}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5330132492961680755, guid: 399bcecf299f13249bd72a4ddf62e09f, type: 3}
+    - {fileID: 5291891108588476238, guid: 399bcecf299f13249bd72a4ddf62e09f, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

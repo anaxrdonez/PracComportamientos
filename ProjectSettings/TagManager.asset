@@ -5,6 +5,11 @@ TagManager:
   serializedVersion: 2
   tags:
   - Zona
+  - Car
+  - Door
+  - Key
+  - Pizza
+  - Cliente
   layers:
   - Default
   - TransparentFX

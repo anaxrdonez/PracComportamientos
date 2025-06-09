@@ -163,29 +163,50 @@ public class NodoColaRecepcion : NodoBT
  */
 public class NodoEntrevista : NodoBT
 {
-    private readonly ClienteBT cliente;
-    private bool hecha = false; //marcará si se ha realizado la entrevista
-    private float tiempo; //para simulación
+        private readonly ClienteBT cliente;
 
-    public NodoEntrevista(ClienteBT cliente)
+        public NodoEntrevista(ClienteBT cliente)
+        {
+            this.cliente = cliente;
+        }
+
+        public override NodoResultado Tick()
+        {
+            // Espera pasiva: el EntrevistadorFSM gestiona la entrevista.
+            // Este nodo sólo comprueba si ya ha finalizado.
+            return cliente.EstaEntrevistado()
+                ? NodoResultado.Exito
+                : NodoResultado.Ejecutando;
+        }
+
+}
+public class NodoAvisarEntrevistador : NodoBT
+{
+    private readonly ClienteBT cliente;
+    private bool notificado = false;
+
+    public NodoAvisarEntrevistador(ClienteBT cliente)
     {
         this.cliente = cliente;
     }
 
     public override NodoResultado Tick()
     {
-        if (hecha) return NodoResultado.Exito; // si se ha realizado devuelve ÉXITO
-        tiempo += Time.deltaTime; //se va sumando el tiempo transcurrido
-        if (tiempo >= 4f) // 4 segundos al menos por entrevista
+        if (notificado) return NodoResultado.Exito;
+
+        EntrevistadorFSM entrevistador = GameObject.FindObjectOfType<EntrevistadorFSM>();
+        if (entrevistador != null)
         {
-            cliente.RealizarResultadoEntrevista(); //aprobado o suspenso
-            cliente.LiberarSalaEntrevista(); 
-            hecha = true; // marcamos entrevista como hecha para no repetirla
+            entrevistador.ClienteLlega(cliente);
+            Debug.Log(" Entrevistador notificado por el cliente: " + cliente.name);
+            notificado = true;
             return NodoResultado.Exito;
         }
-        return NodoResultado.Ejecutando;//si aún no ha pasado el tiempo suficiente se sigue ejecutando
+
+        return NodoResultado.Fallo;
     }
 }
+
 
 
 //---------- NODO ACCIÓN ---------- //
@@ -242,7 +263,7 @@ public class NodoColaEntrevista : NodoBT
         }
 
         bool puede = gameManager.ClientePuedeEntrevistarse(cliente);
-        Debug.Log($"🔄 Cliente {cliente.name} intentando obtener permiso para entrevista. Puede: {puede}");
+        
 
         if (puede)
         {
@@ -287,6 +308,8 @@ public class ClienteBT : MonoBehaviour
     private NavMeshAgent agente;
     private DetectarZona detectarZona;
     private GameManager gameManager;
+    private ClienteEstadoUI estadoUI;
+    private Animator animador;
 
     [Header("Puntos")] public Transform puntoCheckIn, salaEspera, salaEntrevista, zonaGatos, zonaPerros, checkout, salida;
 
@@ -298,6 +321,8 @@ public class ClienteBT : MonoBehaviour
     private NodoBT arbol;
     private NodoResultado estadoActual = NodoResultado.Ejecutando;
     private Transform destinoActual = null;
+
+    public bool Aprobado() => aprobado; //apto para adoptar
 
     public string DetectarZonaActual() => detectarZona != null ? detectarZona.zonaActual : "FueraDeZona";
     public Camera ClienteCam => GetComponentInChildren<Camera>();
@@ -317,6 +342,10 @@ public class ClienteBT : MonoBehaviour
 
     public void InicializarCliente(Transform checkIn, Transform espera, Transform entrevista, Transform gatos, Transform perros, Transform check, Transform outRefugio, GameManager manager)
     {
+        aprobado = false;
+        entrevistado = false;
+        permisoEntrevista = false;
+        checkInCompletado = false;
         puntoCheckIn = checkIn;
         salaEspera = espera;
         salaEntrevista = entrevista;
@@ -331,59 +360,94 @@ public class ClienteBT : MonoBehaviour
     {
         agente = GetComponent<NavMeshAgent>();
         detectarZona = GetComponent<DetectarZona>();
+        estadoUI = GetComponentInChildren<ClienteEstadoUI>();
+
+        animador = GetComponentInChildren<Animator>();
+        if (animador == null)
+            Debug.LogWarning("⚠️ No se encontró Animator en el cliente.");
+
         ConstruirArbol();
     }
+
+
+    private void MostrarEstado(string mensaje)
+    {
+        estadoUI?.ActualizarTexto(mensaje);
+    }
+
 
     void Update()
     {
         if (estadoActual == NodoResultado.Ejecutando && arbol != null)
-        {
             estadoActual = arbol.Tick();
+
+        if (agente != null && animador != null)
+        {
+            bool caminando = agente.velocity.magnitude > 0.1f;
+            animador.SetBool("isWalking", caminando);
         }
     }
+
 
     void ConstruirArbol()
     {
         //-------- 1. PROCESO DE CHECK-IN --------//
         NodoBT checkInSecuencia = new NodoSecuencia(new List<NodoBT> {
-            new NodoColaRecepcion(this, gameManager), //encolar
-            new NodoAccion(() => IrA(puntoCheckIn)), //ir fisicamente al checkin
-            new NodoEsperarZona(this, () => "CheckIn"), //esperar a estar en el checkin
-            new NodoEsperarCheckInConfirmado(this) //esperar a que el recepcionista confirme
+            new NodoColaRecepcion(this, gameManager),
+            new NodoAccion(() => { MostrarEstado("Voy al Check-In"); return IrA(puntoCheckIn); }),
+            new NodoEsperarZona(this, () => "CheckIn"),
+            new NodoEsperarCheckInConfirmado(this)
         });
 
         //-------- 2. IR A SALA DE ESPERA --------//
-        NodoBT irEspera = new NodoAccion(() => IrA(salaEspera));
-        NodoBT esperarSala = new NodoEsperarZona(this, () => "SalaEspera");
+        NodoBT irEspera = new NodoAccion(() => {
+            MostrarEstado("Voy a la sala de espera");
+            return IrA(salaEspera);
+        });
+
+        NodoBT esperarSala = new NodoSecuencia(new List<NodoBT> {
+            new NodoEsperarZona(this, () => "SalaEspera"),
+            new NodoAccion(() => {
+                MostrarEstado("Esperando mi turno...");
+                return NodoResultado.Exito;
+            })
+        });
+
 
         //-------- 3. COLA PARA ENTREVISTA --------//
         NodoBT registroCola = new NodoColaEntrevista(this, gameManager);
 
-        //-------- 4. IR A SALA ENTREVISTA Y SIMULACIÓN --------//
+        //-------- 4. IR A SALA ENTREVISTA Y NOTIFICAR --------//
         NodoBT irEntrevista = new NodoCondicional(
             () => TienePermisoEntrevista(),
-            new NodoAccion(() => IrA(salaEntrevista))
+            new NodoAccion(() => { MostrarEstado("Voy a la sala de entrevista"); return IrA(salaEntrevista); })
         );
         NodoBT esperarEntrevista = new NodoEsperarZona(this, () => "SalaEntrevista");
+        NodoBT avisarEntrevistador = new NodoAvisarEntrevistador(this);
         NodoBT entrevista = new NodoEntrevista(this);
 
         //-------- 5. ADOPCIÓN (SOLO SI HA APROBADO) --------//
         NodoBT adopcion = new NodoSecuencia(new List<NodoBT> {
-            new NodoAccion(() => IrA(quierePerro ? zonaPerros : zonaGatos)),
+            new NodoAccion(() => {
+                string zona = quierePerro ? "zona de perros" : "zona de gatos";
+                MostrarEstado($"Voy a la {zona}");
+                return IrA(quierePerro ? zonaPerros : zonaGatos);
+            }),
             new NodoEsperarZona(this, () => quierePerro ? "ZonaPerros" : "ZonaGatos"),
             new NodoAdopcion(this)
         });
 
         //-------- 6. CHECK-OUT Y SALIDA --------//
-        NodoBT irCheckout = new NodoAccion(() => IrA(checkout));
-        NodoBT irSalida = new NodoAccion(() => IrA(salida, SalirDelRefugio));
+        NodoBT irCheckout = new NodoAccion(() => { MostrarEstado("Voy al checkout"); return IrA(checkout); });
+        NodoBT irSalida = new NodoAccion(() => { MostrarEstado("Saliendo del refugio"); return IrA(salida, SalirDelRefugio); });
+
 
         // Se juntan todos los nodos anteriores en un único NodoSecuencia
         var pasos = new List<NodoBT> {
             checkInSecuencia,
             irEspera, esperarSala,
             registroCola,
-            irEntrevista, esperarEntrevista,
+            irEntrevista, esperarEntrevista,avisarEntrevistador,
             entrevista,
             new NodoCondicional(() => aprobado, adopcion),
             irCheckout,
@@ -413,7 +477,7 @@ public class ClienteBT : MonoBehaviour
         onLlegada?.Invoke();
         return NodoResultado.Exito;
     }
-
+    
     public void RealizarResultadoEntrevista()
     {
         aprobado = UnityEngine.Random.value > 0.5f;
@@ -433,8 +497,24 @@ public class ClienteBT : MonoBehaviour
         animalAsignado = gameManager.AsignarAnimal(quierePerro);
         if (animalAsignado != null)
         {
-            animalAsignado.transform.SetParent(transform);
-            animalAsignado.transform.localPosition = new Vector3(0.5f, 0, 0);
+            // Asignar seguimiento
+            AnimalSeguidor seguidor = animalAsignado.GetComponent<AnimalSeguidor>();
+            if (seguidor == null)
+                seguidor = animalAsignado.AddComponent<AnimalSeguidor>();
+            seguidor.AsignarCliente(this.transform);
+
+            // Desactivar utilidad
+            AnimalUS us = animalAsignado.GetComponent<AnimalUS>();
+            if (us != null)
+                Destroy(us);
+
+            // 🔁 Suscribirse al evento de salida para destruir al animal
+            this.OnClienteSalido += () =>
+            {
+                if (animalAsignado != null)
+                    Destroy(animalAsignado);
+            };
+
             Debug.Log(name + " ha adoptado un " + (quierePerro ? "perro" : "gato"));
         }
         else
@@ -442,6 +522,7 @@ public class ClienteBT : MonoBehaviour
             Debug.LogWarning("No hay animales disponibles para asignar a " + name);
         }
     }
+
 
     public void ConfirmarCheckIn()
     {
