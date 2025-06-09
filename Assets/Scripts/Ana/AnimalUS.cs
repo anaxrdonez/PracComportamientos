@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -8,9 +9,9 @@ using UnityEngine.AI;
 [RequireComponent(typeof(Animal))]
 public class AnimalUS : MonoBehaviour
 {
-    enum EstadoAnimal { Idle, Caminando, Comiendo, Jugando, Durmiendo }
+    public enum EstadoAnimal { Idle, Caminando, Comiendo, Jugando, Durmiendo }
 
-    private EstadoAnimal estado = EstadoAnimal.Idle;
+    [SerializeField] private EstadoAnimal estado = EstadoAnimal.Idle;
     private NavMeshAgent agente;
 
     // Necesidades
@@ -23,6 +24,9 @@ public class AnimalUS : MonoBehaviour
     private GameManager gm;
     private Animal.TipoAnimal tipo;
     private Transform destinoActual = null;
+
+    // Texto de estado
+    private TextMeshProUGUI textoEstado;
 
     void Start()
     {
@@ -44,7 +48,20 @@ public class AnimalUS : MonoBehaviour
             juego = gm.puntoJuegoGatos;
         }
 
+       
+
         StartCoroutine(ActualizarEstado());
+        // Buscar el TextMeshProUGUI dentro del hijo Canvas
+        textoEstado = GetComponentInChildren<TextMeshProUGUI>();
+        ActualizarTextoEstado();
+    }
+
+    void ActualizarTextoEstado()
+    {
+        if (textoEstado != null)
+        {
+            textoEstado.text = estado.ToString();
+        }
     }
 
     void Update()
@@ -76,6 +93,8 @@ public class AnimalUS : MonoBehaviour
 
             string accion = utilidades.OrderByDescending(kv => kv.Value).First().Key;
             EjecutarAccion(accion);
+            ActualizarTextoEstado();
+
         }
     }
 
@@ -113,6 +132,7 @@ public class AnimalUS : MonoBehaviour
 
         agente.isStopped = true;
         estado = nuevoEstado;
+        ActualizarTextoEstado();
 
         float duracion = Random.Range(3f, 6f);
         yield return new WaitForSeconds(duracion);
@@ -132,5 +152,6 @@ public class AnimalUS : MonoBehaviour
         }
 
         estado = EstadoAnimal.Idle;
+        ActualizarTextoEstado();
     }
 }
