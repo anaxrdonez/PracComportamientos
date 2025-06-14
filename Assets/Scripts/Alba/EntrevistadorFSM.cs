@@ -10,6 +10,10 @@ public class EntrevistadorFSM : MonoBehaviour
     private ClienteBT clienteActual = null;
     private GameManager gameManager;
 
+    // Referencias a los iconos
+    public GameObject iconoAprobado;
+    public GameObject iconoDenegado;
+
     public void Inicializar(GameManager manager)
     {
         gameManager = manager;
@@ -17,27 +21,29 @@ public class EntrevistadorFSM : MonoBehaviour
 
     void Start()
     {
+        // Asegúrate de ocultarlos al inicio
+        if (iconoAprobado != null) iconoAprobado.SetActive(false);
+        if (iconoDenegado != null) iconoDenegado.SetActive(false);
+
         StartCoroutine(FSM());
     }
 
     public void ClienteLlega(ClienteBT cliente)
     {
-        Debug.Log("📨 ClienteLlega llamado en EntrevistadorFSM: " + cliente.name);
-        Debug.Log("🔎 Estado actual del entrevistador: " + estadoActual);
+        Debug.Log("ClienteLlega llamado en EntrevistadorFSM: " + cliente.name);
+        Debug.Log("Estado actual del entrevistador: " + estadoActual);
 
         if (estadoActual == EstadoEntrevistador.Esperando)
         {
             clienteActual = cliente;
             estadoActual = EstadoEntrevistador.Entrevistando;
-            Debug.Log("✅ Entrevistador cambia a estado: Entrevistando");
+            Debug.Log("Entrevistador cambia a estado: Entrevistando");
         }
         else
         {
-            Debug.LogWarning("⚠️ Entrevistador no puede aceptar cliente: no está en estado 'Esperando'");
+            Debug.LogWarning("Entrevistador no puede aceptar cliente: no está en estado 'Esperando'");
         }
     }
-
-
 
     private IEnumerator FSM()
     {
@@ -51,43 +57,41 @@ public class EntrevistadorFSM : MonoBehaviour
                     break;
 
                 case EstadoEntrevistador.Entrevistando:
-                    // Esperar a que el cliente llegue realmente a la sala
                     if (clienteActual != null)
                     {
-                        // Espera hasta que el cliente esté en la zona correcta
                         while (clienteActual.GetComponent<DetectarZona>().zonaActual != "SalaEntrevista")
-                        {
                             yield return null;
-                        }
 
-                        // Una vez dentro, ahora sí comienza la entrevista
                         animador.Play("Entrevistando");
-                        yield return new WaitForSeconds(5f); // duración de la animación
+                        yield return new WaitForSeconds(5f);
 
                         estadoActual = EstadoEntrevistador.DandoResultado;
                     }
                     break;
 
-
                 case EstadoEntrevistador.DandoResultado:
                     if (clienteActual != null)
                     {
-                        clienteActual.RealizarResultadoEntrevista(); // calcula si es apto
+                        clienteActual.RealizarResultadoEntrevista();
 
-                        // Aquí lanzamos la animación correspondiente mediante el parámetro
-                        animador.SetInteger("Resultado", clienteActual.Aprobado() ? 1 : 0);
+                        bool aprobado = clienteActual.Aprobado();
+                        animador.SetInteger("Resultado", aprobado ? 1 : 0);
 
-                        yield return new WaitForSeconds(2f); // espera a que termine la animación
+                        // Mostrar solo el icono correspondiente
+                        if (iconoAprobado != null) iconoAprobado.SetActive(aprobado);
+                        if (iconoDenegado != null) iconoDenegado.SetActive(!aprobado);
+
+                        yield return new WaitForSeconds(3f); // duración animación + icono
+
+                        // Ocultar ambos iconos
+                        if (iconoAprobado != null) iconoAprobado.SetActive(false);
+                        if (iconoDenegado != null) iconoDenegado.SetActive(false);
 
                         clienteActual.LiberarSalaEntrevista();
                         clienteActual = null;
                     }
 
-                    // Reseteamos el parámetro para la próxima vez
                     animador.SetInteger("Resultado", -1);
-                    Debug.Log($"▶️ Estado actual en Animator: {animador.GetCurrentAnimatorStateInfo(0).IsName("DarResultadoNeg")}");
-
-                    clienteActual = null;
                     estadoActual = EstadoEntrevistador.Esperando;
                     break;
             }
