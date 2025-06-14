@@ -12,13 +12,13 @@ public class TigerSensor : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Deer"))
+        if (other.CompareTag("DeerBody"))
             ai.OnSeePrey(other.transform);
     }
 
     void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Deer"))
+        if (other.CompareTag("DeerBody"))
             ai.OnLosePrey(other.transform);
     }
 }

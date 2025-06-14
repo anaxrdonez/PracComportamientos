@@ -1,57 +1,110 @@
+// TigerAI.cs
 using UnityEngine;
+using UnityEngine.AI;
 using System.Collections;
 
 public class TigerAI : MonoBehaviour
 {
-    public float radiusX = 7f, radiusZ = 4f;
-    public float walkSpeed = 2f, chaseSpeed = 4f, rotateSpeed = 120f;
-    public float waitMin = 1f, waitMax = 3f;
-    public float chaseDuration = 5f;
+    [Header("NavMesh Wander")]
+    public float wanderRadius = 25f;
+    public float walkSpeed = 1.5f;
+    public float waitMin = 2f;
+    public float waitMax = 4f;
 
-    enum State { Wander, Chase }
+    [Header("Chase")]
+    public float chaseSpeed = 5f;
+    public float chaseDuration = 7f;
+
+    [Header("Search")]
+    public float searchDuration = 3f;
+    public float rotateSpeed = 150f;
+
+    [Header("Animation")]
+    public Animator animator;
+    public RuntimeAnimatorController defaultController;
+    public RuntimeAnimatorController chaseController;
+
+    enum State { Wander, Chase, Search }
     State state = State.Wander;
 
-    Vector3 centerPos;
+    NavMeshAgent agent;
+    Vector3 homePosition;
     Transform preyTarget;
     Coroutine routine;
 
     void Start()
     {
-        centerPos = transform.position;
+        agent = GetComponent<NavMeshAgent>();
+        homePosition = transform.position;
+        agent.speed = walkSpeed;
+
+        if (animator != null && defaultController != null)
+            animator.runtimeAnimatorController = defaultController;
+
         routine = StartCoroutine(WanderRoutine());
     }
 
     public void OnSeePrey(Transform prey)
     {
-        preyTarget = prey;
         if (state != State.Chase)
-            SwitchState(State.Chase);
+            SwitchState(State.Chase, prey);
     }
 
     public void OnLosePrey(Transform prey)
     {
-        // Si pierde de vista antes de "atrapar", vuelve a patrullar
-        if (state == State.Chase)
-            SwitchState(State.Wander);
+        if (state == State.Chase && prey == preyTarget)
+            SwitchState(State.Search, null);
     }
 
-    void SwitchState(State newState)
+    void SwitchState(State newState, Transform target)
     {
         if (routine != null) StopCoroutine(routine);
         state = newState;
-        if (state == State.Wander)
-            routine = StartCoroutine(WanderRoutine());
-        else if (state == State.Chase)
-            routine = StartCoroutine(ChaseRoutine());
+
+        // Animación y velocidad
+        if (animator != null)
+        {
+            switch (state)
+            {
+                case State.Wander:
+                case State.Search:
+                    if (defaultController != null)
+                        animator.runtimeAnimatorController = defaultController;
+                    agent.speed = walkSpeed;
+                    break;
+                case State.Chase:
+                    if (chaseController != null)
+                        animator.runtimeAnimatorController = chaseController;
+                    agent.speed = chaseSpeed;
+                    preyTarget = target;
+                    break;
+            }
+        }
+        else if (state == State.Chase) preyTarget = target;
+
+        // Arranca la rutina correspondiente
+        switch (state)
+        {
+            case State.Wander:
+                routine = StartCoroutine(WanderRoutine());
+                break;
+            case State.Chase:
+                routine = StartCoroutine(ChaseRoutine());
+                break;
+            case State.Search:
+                routine = StartCoroutine(SearchRoutine());
+                break;
+        }
     }
 
     IEnumerator WanderRoutine()
     {
-        while (true)
+        while (state == State.Wander)
         {
-            Vector3 target = GetRandomPointInEllipse();
-            yield return RotateTowards(target);
-            yield return MoveTowards(target, walkSpeed);
+            Vector3 dest = RandomNavMeshPoint(homePosition, wanderRadius);
+            agent.SetDestination(dest);
+            while (agent.pathPending || agent.remainingDistance > agent.stoppingDistance)
+                yield return null;
             yield return new WaitForSeconds(Random.Range(waitMin, waitMax));
         }
     }
@@ -62,59 +115,35 @@ public class TigerAI : MonoBehaviour
         while (Time.time < endTime && state == State.Chase)
         {
             if (preyTarget == null) break;
-
-            // 1) Girar hacia la presa
-            Vector3 targetPos = preyTarget.position;
-            yield return RotateTowards(targetPos);
-
-            // 2) Moverse hacia ella
-            yield return MoveTowards(targetPos, chaseSpeed);
-
-            // 3) Comprobar “captura”
-            float dist = Vector3.Distance(transform.position, preyTarget.position);
-            if (dist <= 0.1f)
-            {
-                // Desactivar el ciervo
-                preyTarget.gameObject.SetActive(false);
-                preyTarget = null;
-                // Volver a patrullar
-                SwitchState(State.Wander);
-                yield break;
-            }
+            agent.SetDestination(preyTarget.position);
+            yield return null;
         }
-        // Si expira el tiempo de persecución sin capturar
         if (state == State.Chase)
-            SwitchState(State.Wander);
+            SwitchState(State.Search, null);
     }
 
-    IEnumerator RotateTowards(Vector3 target)
+    IEnumerator SearchRoutine()
     {
-        Quaternion goal = Quaternion.LookRotation((target - transform.position).normalized, Vector3.up);
-        while (Quaternion.Angle(transform.rotation, goal) > 1f)
+        float endTime = Time.time + searchDuration;
+        float total = 180f, turned = 0f, perSec = total / searchDuration;
+        while (Time.time < endTime && state == State.Search)
         {
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, goal, rotateSpeed * Time.deltaTime);
+            float step = perSec * Time.deltaTime;
+            transform.Rotate(0f, step, 0f);
+            turned += step;
+            if (turned >= total) break;
             yield return null;
         }
+        if (state == State.Search)
+            SwitchState(State.Wander, null);
     }
 
-    IEnumerator MoveTowards(Vector3 target, float speed)
+    Vector3 RandomNavMeshPoint(Vector3 center, float radius)
     {
-        // Avanza hasta el punto o hasta que cambie de estado
-        while ((state == State.Chase || state == State.Wander)
-               && Vector3.Distance(transform.position, target) > 0.1f)
-        {
-            transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
-            yield return null;
-        }
-    }
-
-    Vector3 GetRandomPointInEllipse()
-    {
-        float t = Random.Range(0f, Mathf.PI * 2f);
-        float u = Random.value + Random.value;
-        float r = u > 1f ? 2f - u : u;
-        float x = r * radiusX * Mathf.Cos(t);
-        float z = r * radiusZ * Mathf.Sin(t);
-        return new Vector3(centerPos.x + x, centerPos.y, centerPos.z + z);
+        Vector3 rand = center + Random.insideUnitSphere * radius;
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(rand, out hit, radius, NavMesh.AllAreas))
+            return hit.position;
+        return center;
     }
 }

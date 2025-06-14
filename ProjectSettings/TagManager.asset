@@ -12,6 +12,7 @@ TagManager:
   - Cliente
   - Tiger
   - Deer
+  - DeerBody
   layers:
   - Default
   - TransparentFX
