@@ -13,7 +13,6 @@ public class TigerAI : MonoBehaviour
 
     [Header("Chase")]
     public float chaseSpeed = 5f;
-    public float chaseDuration = 7f;
 
     [Header("Search")]
     public float searchDuration = 3f;
@@ -61,7 +60,7 @@ public class TigerAI : MonoBehaviour
         if (routine != null) StopCoroutine(routine);
         state = newState;
 
-        // Animación y velocidad
+        // asignar animación y velocidad
         if (animator != null)
         {
             switch (state)
@@ -80,9 +79,12 @@ public class TigerAI : MonoBehaviour
                     break;
             }
         }
-        else if (state == State.Chase) preyTarget = target;
+        else if (state == State.Chase)
+        {
+            preyTarget = target;
+        }
 
-        // Arranca la rutina correspondiente
+        // iniciar la rutina correspondiente
         switch (state)
         {
             case State.Wander:
@@ -92,6 +94,8 @@ public class TigerAI : MonoBehaviour
                 routine = StartCoroutine(ChaseRoutine());
                 break;
             case State.Search:
+                // limpia la referencia para Search
+                preyTarget = null;
                 routine = StartCoroutine(SearchRoutine());
                 break;
         }
@@ -111,27 +115,34 @@ public class TigerAI : MonoBehaviour
 
     IEnumerator ChaseRoutine()
     {
-        float endTime = Time.time + chaseDuration;
-        while (Time.time < endTime && state == State.Chase)
+        // Persigue indefinidamente hasta perder contacto o que la presa sea desactivada
+        while (state == State.Chase)
         {
-            if (preyTarget == null) break;
+            // si la presa ya no existe o está desactivada, retomamos Wander
+            if (preyTarget == null || !preyTarget.gameObject.activeInHierarchy)
+            {
+                SwitchState(State.Wander, null);
+                yield break;
+            }
+
             agent.SetDestination(preyTarget.position);
             yield return null;
         }
-        if (state == State.Chase)
-            SwitchState(State.Search, null);
     }
 
     IEnumerator SearchRoutine()
     {
         float endTime = Time.time + searchDuration;
-        float total = 180f, turned = 0f, perSec = total / searchDuration;
+        float totalAngle = 180f;
+        float perSec = totalAngle / searchDuration;
+        float rotated = 0f;
+
         while (Time.time < endTime && state == State.Search)
         {
             float step = perSec * Time.deltaTime;
             transform.Rotate(0f, step, 0f);
-            turned += step;
-            if (turned >= total) break;
+            rotated += step;
+            if (rotated >= totalAngle) break;
             yield return null;
         }
         if (state == State.Search)
