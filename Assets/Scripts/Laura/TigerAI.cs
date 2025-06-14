@@ -1,10 +1,14 @@
 // TigerAI.cs
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 using System.Collections;
 
 public class TigerAI : MonoBehaviour
 {
+    public enum State { Wander, Chase, Search }
+    State state = State.Wander;
+
     [Header("NavMesh Wander")]
     public float wanderRadius = 25f;
     public float walkSpeed = 1.5f;
@@ -18,13 +22,16 @@ public class TigerAI : MonoBehaviour
     public float searchDuration = 3f;
     public float rotateSpeed = 150f;
 
-    [Header("Animation")]
+    [Header("Animation Controllers")]
     public Animator animator;
     public RuntimeAnimatorController defaultController;
     public RuntimeAnimatorController chaseController;
 
-    enum State { Wander, Chase, Search }
-    State state = State.Wander;
+    [Header("State Icon")]
+    public Image stateIcon;
+    public Sprite wanderIcon;
+    public Sprite chaseIcon;
+    public Sprite searchIcon;
 
     NavMeshAgent agent;
     Vector3 homePosition;
@@ -39,6 +46,7 @@ public class TigerAI : MonoBehaviour
 
         if (animator != null && defaultController != null)
             animator.runtimeAnimatorController = defaultController;
+        UpdateStateIcon();
 
         routine = StartCoroutine(WanderRoutine());
     }
@@ -59,46 +67,52 @@ public class TigerAI : MonoBehaviour
     {
         if (routine != null) StopCoroutine(routine);
         state = newState;
+        preyTarget = target;
 
-        // asignar animación y velocidad
+        // cambiar controlador
         if (animator != null)
         {
             switch (state)
             {
                 case State.Wander:
                 case State.Search:
-                    if (defaultController != null)
-                        animator.runtimeAnimatorController = defaultController;
-                    agent.speed = walkSpeed;
+                    if (defaultController != null) animator.runtimeAnimatorController = defaultController;
                     break;
                 case State.Chase:
-                    if (chaseController != null)
-                        animator.runtimeAnimatorController = chaseController;
-                    agent.speed = chaseSpeed;
-                    preyTarget = target;
+                    if (chaseController != null) animator.runtimeAnimatorController = chaseController;
                     break;
             }
         }
-        else if (state == State.Chase)
-        {
-            preyTarget = target;
-        }
+        UpdateStateIcon();
 
-        // iniciar la rutina correspondiente
+        // iniciar rutina
         switch (state)
         {
             case State.Wander:
+                agent.speed = walkSpeed;
                 routine = StartCoroutine(WanderRoutine());
                 break;
             case State.Chase:
+                agent.speed = chaseSpeed;
                 routine = StartCoroutine(ChaseRoutine());
                 break;
             case State.Search:
-                // limpia la referencia para Search
-                preyTarget = null;
+                agent.speed = walkSpeed;
                 routine = StartCoroutine(SearchRoutine());
                 break;
         }
+    }
+
+    void UpdateStateIcon()
+    {
+        if (stateIcon == null) return;
+        switch (state)
+        {
+            case State.Wander: stateIcon.sprite = wanderIcon; break;
+            case State.Chase: stateIcon.sprite = chaseIcon; break;
+            case State.Search: stateIcon.sprite = searchIcon; break;
+        }
+        stateIcon.enabled = true;
     }
 
     IEnumerator WanderRoutine()
@@ -115,26 +129,20 @@ public class TigerAI : MonoBehaviour
 
     IEnumerator ChaseRoutine()
     {
-        // Persigue indefinidamente hasta perder contacto o que la presa sea desactivada
-        while (state == State.Chase)
+        while (state == State.Chase && preyTarget != null && preyTarget.gameObject.activeInHierarchy)
         {
-            // si la presa ya no existe o está desactivada, retomamos Wander
-            if (preyTarget == null || !preyTarget.gameObject.activeInHierarchy)
-            {
-                SwitchState(State.Wander, null);
-                yield break;
-            }
-
             agent.SetDestination(preyTarget.position);
             yield return null;
         }
+        if (state == State.Chase)
+            SwitchState(State.Search, null);
     }
 
     IEnumerator SearchRoutine()
     {
         float endTime = Time.time + searchDuration;
-        float totalAngle = 180f;
-        float perSec = totalAngle / searchDuration;
+        float total = 180f;
+        float perSec = total / searchDuration;
         float rotated = 0f;
 
         while (Time.time < endTime && state == State.Search)
@@ -142,7 +150,7 @@ public class TigerAI : MonoBehaviour
             float step = perSec * Time.deltaTime;
             transform.Rotate(0f, step, 0f);
             rotated += step;
-            if (rotated >= totalAngle) break;
+            if (rotated >= total) break;
             yield return null;
         }
         if (state == State.Search)

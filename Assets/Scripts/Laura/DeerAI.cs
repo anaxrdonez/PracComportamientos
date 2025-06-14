@@ -1,27 +1,39 @@
 // DeerAI.cs
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 using System.Collections;
 
 public class DeerAI : MonoBehaviour
 {
+    public enum State { Wander, Alert, Flee }
+    State state = State.Wander;
+
     [Header("NavMesh Wander")]
     public float wanderRadius = 20f;
     public float walkSpeed = 2.5f;
     public float waitMin = 1f;
     public float waitMax = 2f;
 
+    [Header("Alert")]
+    public float alertDuration = 3f;
+    public float alertRotateSpeed = 120f;
+
     [Header("Flee")]
     public float fleeSpeedMultiplier = 2.5f;
     public float fleeDuration = 5f;
 
-    [Header("Animation")]
+    [Header("Animation Controllers")]
     public Animator animator;
     public RuntimeAnimatorController defaultController;
+    public RuntimeAnimatorController alertController;
     public RuntimeAnimatorController fleeController;
 
-    enum State { Wander, Flee }
-    State state = State.Wander;
+    [Header("State Icon")]
+    public Image stateIcon;
+    public Sprite wanderIcon;
+    public Sprite alertIcon;
+    public Sprite fleeIcon;
 
     NavMeshAgent agent;
     Vector3 homePosition;
@@ -34,53 +46,78 @@ public class DeerAI : MonoBehaviour
         homePosition = transform.position;
         agent.speed = walkSpeed;
 
-        // Arrancamos con la animación por defecto
+        // Inicializar animador e icono
         if (animator != null && defaultController != null)
             animator.runtimeAnimatorController = defaultController;
+        UpdateStateIcon();
 
         routine = StartCoroutine(WanderRoutine());
     }
 
     public void OnSensorEnter(DeerSensor.SensorType type, Transform other)
     {
-        if (other.CompareTag("Tiger") && state != State.Flee)
-        {
-            threat = other;
-            SwitchState(State.Flee);
-        }
+        if (!other.CompareTag("Tiger")) return;
+
+        if (type == DeerSensor.SensorType.Ear && state == State.Wander)
+            SwitchState(State.Alert, other);
+        else if ((type == DeerSensor.SensorType.LeftEye || type == DeerSensor.SensorType.RightEye)
+                 && state != State.Flee)
+            SwitchState(State.Flee, other);
     }
 
-    void SwitchState(State newState)
+    void SwitchState(State newState, Transform newThreat)
     {
         if (routine != null) StopCoroutine(routine);
         state = newState;
-
-        // Cambiamos animación según el nuevo estado
+        threat = newThreat;
+        // cambiar controlador
         if (animator != null)
         {
             switch (state)
             {
                 case State.Wander:
-                    if (defaultController != null)
-                        animator.runtimeAnimatorController = defaultController;
-                    agent.speed = walkSpeed;
-                    routine = StartCoroutine(WanderRoutine());
+                    if (defaultController != null) animator.runtimeAnimatorController = defaultController;
                     break;
-
+                case State.Alert:
+                    if (alertController != null) animator.runtimeAnimatorController = alertController;
+                    break;
                 case State.Flee:
-                    if (fleeController != null)
-                        animator.runtimeAnimatorController = fleeController;
-                    agent.speed = walkSpeed * fleeSpeedMultiplier;
-                    routine = StartCoroutine(FleeRoutine());
+                    if (fleeController != null) animator.runtimeAnimatorController = fleeController;
                     break;
             }
         }
-        else
+        UpdateStateIcon();
+
+        // iniciar rutina
+        switch (state)
         {
-            // Si no hay animator, igual arrancamos la corutina
-            agent.speed = (state == State.Wander ? walkSpeed : walkSpeed * fleeSpeedMultiplier);
-            routine = StartCoroutine(state == State.Wander ? WanderRoutine() : FleeRoutine());
+            case State.Wander:
+                agent.speed = walkSpeed;
+                agent.isStopped = false;
+                routine = StartCoroutine(WanderRoutine());
+                break;
+            case State.Alert:
+                agent.isStopped = true;
+                routine = StartCoroutine(AlertRoutine());
+                break;
+            case State.Flee:
+                agent.isStopped = false;
+                agent.speed = walkSpeed * fleeSpeedMultiplier;
+                routine = StartCoroutine(FleeRoutine());
+                break;
         }
+    }
+
+    void UpdateStateIcon()
+    {
+        if (stateIcon == null) return;
+        switch (state)
+        {
+            case State.Wander: stateIcon.sprite = wanderIcon; break;
+            case State.Alert: stateIcon.sprite = alertIcon; break;
+            case State.Flee: stateIcon.sprite = fleeIcon; break;
+        }
+        stateIcon.enabled = true;
     }
 
     IEnumerator WanderRoutine()
@@ -93,6 +130,18 @@ public class DeerAI : MonoBehaviour
                 yield return null;
             yield return new WaitForSeconds(Random.Range(waitMin, waitMax));
         }
+    }
+
+    IEnumerator AlertRoutine()
+    {
+        float endTime = Time.time + alertDuration;
+        while (Time.time < endTime && state == State.Alert)
+        {
+            transform.Rotate(0f, alertRotateSpeed * Time.deltaTime, 0f);
+            yield return null;
+        }
+        if (state == State.Alert)
+            SwitchState(State.Wander, null);
     }
 
     IEnumerator FleeRoutine()
@@ -109,7 +158,7 @@ public class DeerAI : MonoBehaviour
                 yield return null;
         }
         if (state == State.Flee)
-            SwitchState(State.Wander);
+            SwitchState(State.Wander, null);
     }
 
     Vector3 RandomNavMeshPoint(Vector3 center, float radius)
