@@ -172,15 +172,15 @@ public class LimpiadorFSM : MonoBehaviour
     private Transform ObtenerClienteCercano(float radio = 5f)
     {
         Collider[] colisiones = Physics.OverlapSphere(transform.position, radio);
-        Debug.Log($"🧠 Limpiador [{name}] revisando colisiones. Detectadas: {colisiones.Length}");
+        //Debug.Log($"🧠 Limpiador [{name}] revisando colisiones. Detectadas: {colisiones.Length}");
 
         foreach (var col in colisiones)
         {
-            Debug.Log($"➡️ Detectado: {col.name}, Tag: {col.tag}");
+            //Debug.Log($"➡️ Detectado: {col.name}, Tag: {col.tag}");
 
             if (col.CompareTag("Cliente"))
             {
-                Debug.Log($"✅ Cliente detectado: {col.name}");
+                //Debug.Log($"✅ Cliente detectado: {col.name}");
                 return col.transform;
             }
         }

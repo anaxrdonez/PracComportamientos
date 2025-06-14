@@ -13,6 +13,7 @@ public class AnimalUS : MonoBehaviour
 
     [SerializeField] private EstadoAnimal estado = EstadoAnimal.Idle;
     private NavMeshAgent agente;
+    
 
     // Necesidades
     float hambre = 0f;
@@ -54,6 +55,8 @@ public class AnimalUS : MonoBehaviour
         // Buscar el TextMeshProUGUI dentro del hijo Canvas
         textoEstado = GetComponentInChildren<TextMeshProUGUI>();
         ActualizarTextoEstado();
+
+
     }
 
     void ActualizarTextoEstado()
@@ -62,6 +65,9 @@ public class AnimalUS : MonoBehaviour
         {
             textoEstado.text = estado.ToString();
         }
+        // Mostrar icono de personalidad
+
+
     }
 
     void Update()

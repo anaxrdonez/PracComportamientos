@@ -52,6 +52,23 @@ public class GameManager : MonoBehaviour
     private List<GameObject> perrosDisponibles = new List<GameObject>();
     private List<GameObject> gatosDisponibles = new List<GameObject>();
 
+    //tabla de compatibilidad para asignar animales a clientes
+    private Dictionary<(string cliente, string animal), float> compatibilidad = new()
+{
+    { ("Cariñoso", "Cariñoso"), 1f },
+    { ("Cariñoso", "Tranquilo"), 0.8f },
+    { ("Cariñoso", "Activo"), 0.6f },
+
+    { ("Activo", "Activo"), 1f },
+    { ("Activo", "Cariñoso"), 0.7f },
+    { ("Activo", "Tranquilo"), 0.4f },
+
+    { ("Independiente", "Tranquilo"), 1f },
+    { ("Independiente", "Activo"), 0.6f },
+    { ("Independiente", "Cariñoso"), 0.3f },
+
+};
+
     void Start()
     {
         Debug.Log("Iniciando GameManager...");
@@ -89,6 +106,8 @@ public class GameManager : MonoBehaviour
                 {
                     clienteScript.InicializarCliente(puntoCheckIn, salaEspera, salaEntrevista, zonaGatos, zonaPerros, checkout, salida, this);
                     clientesActuales++;
+                    clienteScript.personalidadCliente = ObtenerPersonalidadAleatoriaCliente();
+
 
                     RecepcionistaFSM recepcionista = FindObjectOfType<RecepcionistaFSM>();
                     if (recepcionista != null)
@@ -120,6 +139,12 @@ public class GameManager : MonoBehaviour
         }
     }
 
+
+    public string ObtenerPersonalidadAleatoriaCliente()
+    {
+        string[] opciones = { "Cariñoso", "Activo", "Independiente" };
+        return opciones[UnityEngine.Random.Range(0, opciones.Length)];
+    }
     void GenerarLimpiadores()
     {
         for (int i = 0; i < numLimpiadores; i++)
@@ -216,22 +241,47 @@ public class GameManager : MonoBehaviour
         recepcionOcupada = false;
     }
 
-    public GameObject AsignarAnimal(bool quierePerro)
+    public GameObject AsignarAnimal(bool quierePerro, string personalidadCliente)
     {
-        if (quierePerro && perrosDisponibles.Count > 0)
+        List<GameObject> candidatos = quierePerro ? perrosDisponibles : gatosDisponibles;
+
+        if (candidatos.Count == 0) return null;
+
+        GameObject mejorAnimal = null;
+        float mejorCompatibilidad = -1f;
+
+        foreach (var animal in candidatos)
         {
-            GameObject animal = perrosDisponibles[0];
-            perrosDisponibles.RemoveAt(0);
-            return animal;
+            Animal animalInstance = animal.GetComponent<Animal>();
+            if (animalInstance == null) continue;
+
+            string personalidadAnimal = animalInstance.personalidadAnimal;
+            float compat = CalcularCompatibilidad(personalidadCliente, personalidadAnimal);
+
+            if (compat > mejorCompatibilidad)
+            {
+                mejorCompatibilidad = compat;
+                mejorAnimal = animal;
+            }
         }
-        else if (!quierePerro && gatosDisponibles.Count > 0)
+
+        if (mejorAnimal != null)
         {
-            GameObject animal = gatosDisponibles[0];
-            gatosDisponibles.RemoveAt(0);
-            return animal;
+            candidatos.Remove(mejorAnimal);
+            return mejorAnimal;
         }
+
         return null;
     }
+
+
+    public float CalcularCompatibilidad(string cliente, string animal)
+    {
+        if (compatibilidad.TryGetValue((cliente, animal), out float valor))
+            return valor;
+        return 0.5f;
+    }
+
 
     public void LiberarAnimal(GameObject animal)
     {

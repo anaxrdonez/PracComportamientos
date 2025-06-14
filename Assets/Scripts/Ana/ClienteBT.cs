@@ -324,6 +324,8 @@ public class ClienteBT : MonoBehaviour
 
     public bool Aprobado() => aprobado; //apto para adoptar
 
+    public string personalidadCliente;
+
     public string DetectarZonaActual() => detectarZona != null ? detectarZona.zonaActual : "FueraDeZona";
     public Camera ClienteCam => GetComponentInChildren<Camera>();
     public event System.Action OnClienteSalido; //para cuando el cliente ha salido del refugio
@@ -387,6 +389,7 @@ public class ClienteBT : MonoBehaviour
             animador.SetBool("isWalking", caminando);
         }
     }
+
 
 
     void ConstruirArbol()
@@ -477,14 +480,24 @@ public class ClienteBT : MonoBehaviour
         onLlegada?.Invoke();
         return NodoResultado.Exito;
     }
-    
+
     public void RealizarResultadoEntrevista()
     {
         aprobado = UnityEngine.Random.value > 0.5f;
         quierePerro = UnityEngine.Random.value > 0.5f;
         entrevistado = true;
         Debug.Log($"{name} entrevistado. Aprobado: {aprobado}, QuierePerro: {quierePerro}");
+
+        if (aprobado)
+        {
+            var icono = GetComponentInChildren<ClientePersonalidadIcono>();
+            if (icono != null)
+            {
+                icono.MostrarIcono(personalidadCliente);
+            }
+        }
     }
+
 
     public void AsignarAnimal()
     {
@@ -494,7 +507,8 @@ public class ClienteBT : MonoBehaviour
             return;
         }
 
-        animalAsignado = gameManager.AsignarAnimal(quierePerro);
+        animalAsignado = gameManager.AsignarAnimal(quierePerro, personalidadCliente);
+
         if (animalAsignado != null)
         {
             // Asignar seguimiento
@@ -522,6 +536,8 @@ public class ClienteBT : MonoBehaviour
             Debug.LogWarning("No hay animales disponibles para asignar a " + name);
         }
     }
+
+   
 
 
     public void ConfirmarCheckIn()
