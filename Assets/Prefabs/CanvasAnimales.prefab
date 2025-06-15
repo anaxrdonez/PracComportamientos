@@ -100,16 +100,16 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2123268336067956401}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.17182554, y: 0.17182554, z: 0.17182554}
+  m_LocalScale: {x: 0.19567, y: 0.19567, z: 0.19567}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 951431985083323226}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -25.299997}
+  m_AnchoredPosition: {x: 9.800003, y: -0.8999984}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7332595452595476857
@@ -162,7 +162,6 @@ GameObject:
   - component: {fileID: 6769192825195635550}
   - component: {fileID: 9115447749100608678}
   - component: {fileID: 7174801747801702480}
-  - component: {fileID: 5335422010034865198}
   m_Layer: 0
   m_Name: CanvasAnimales
   m_TagString: Untagged
@@ -227,20 +226,6 @@ MonoBehaviour:
   "iconoCari\xF1oso": {fileID: 6090149867040730013}
   iconoTranquilo: {fileID: 4145232348859500539}
   iconoActivo: {fileID: 2123268336067956401}
---- !u!114 &5335422010034865198
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3626944769130976524}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c051837820c6eb49aaed92ab5d9eea8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  imageStatus: {fileID: 3154867696390288728}
-  camara: {fileID: 0}
 --- !u!1 &4145232348859500539
 GameObject:
   m_ObjectHideFlags: 0
@@ -266,16 +251,16 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4145232348859500539}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.1736071, y: 0.1736071, z: 0.1736071}
+  m_LocalScale: {x: 0.19567, y: 0.19567, z: 0.19567}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 951431985083323226}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -25.599998}
+  m_AnchoredPosition: {x: 9.800003, y: -0.8999984}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6624592941151099383
