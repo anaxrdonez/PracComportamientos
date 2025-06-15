@@ -315,7 +315,7 @@ public class ClienteBT : MonoBehaviour
 
     private bool entrevistado = false, aprobado = false, enSalaEspera = false;
     private bool quierePerro = false;
-    private GameObject animalAsignado;
+    [SerializeField] private GameObject animalAsignado;
     private bool checkInCompletado = false;
 
     private NodoBT arbol;

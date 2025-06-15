@@ -840,6 +840,7 @@ GameObject:
   - component: {fileID: 2875612058234121667}
   - component: {fileID: 12311120487977220}
   - component: {fileID: 7975007574266479192}
+  - component: {fileID: 1550552681823841869}
   m_Layer: 0
   m_Name: Perro 2
   m_TagString: Untagged
@@ -949,7 +950,7 @@ NavMeshAgent:
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
-  m_Height: 2
+  m_Height: 0.3
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
@@ -1004,6 +1005,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   imageStatus: {fileID: 7949654571328584760}
   camara: {fileID: 0}
+--- !u!114 &1550552681823841869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6764935964214722342}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92882da4e8ef00f45ae9a15e87db3660, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7224256813102731326
 GameObject:
   m_ObjectHideFlags: 0

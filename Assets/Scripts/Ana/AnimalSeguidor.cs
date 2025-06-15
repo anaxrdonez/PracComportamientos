@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
-[RequireComponent(typeof(NavMeshAgent))]
+//[RequireComponent(typeof(NavMeshAgent))]
 public class AnimalSeguidor : MonoBehaviour
 {
     private Transform clienteObjetivo;
@@ -14,32 +14,17 @@ public class AnimalSeguidor : MonoBehaviour
         agente = GetComponent<NavMeshAgent>();
     }
 
+    
     IEnumerator SeguirCliente()
     {
-        // Si por alguna razón agente no está asignado, detenemos el seguimiento
-        if (agente == null)
-        {
-            Debug.LogError($"[{name}] NavMeshAgent no asignado en SeguirCliente.");
-            yield break;
-        }
-
+        if (agente == null) yield break;
         while (clienteObjetivo != null)
         {
-            // Comprobamos que el transform del cliente sigue siendo válido
-            if (clienteObjetivo == null)
-            {
-                yield break;
-            }
-
-            // Volvemos a asignar destino solo si es necesario o la ruta se ha interrumpido
-            if (!agente.hasPath || agente.remainingDistance < 0.5f || agente.pathStatus != NavMeshPathStatus.PathComplete)
-            {
-                agente.SetDestination(clienteObjetivo.position);
-            }
-
-            yield return new WaitForSeconds(0.3f);
+            agente.SetDestination(clienteObjetivo.position);
+            yield return null;    // en lugar de WaitForSeconds
         }
     }
+    
 
     public void AsignarCliente(Transform cliente)
     {

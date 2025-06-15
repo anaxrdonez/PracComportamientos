@@ -332,6 +332,7 @@ GameObject:
   - component: {fileID: 8592178314536567292}
   - component: {fileID: 5291891108588476238}
   - component: {fileID: 3129117923011537018}
+  - component: {fileID: 3401345437377825877}
   m_Layer: 0
   m_Name: Gato 2
   m_TagString: Untagged
@@ -455,7 +456,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 1965879682929285331}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 0.2
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -464,7 +465,7 @@ NavMeshAgent:
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
-  m_Height: 2
+  m_Height: 0.2
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
@@ -496,6 +497,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   imageStatus: {fileID: 4851835395629234641}
   camara: {fileID: 0}
+--- !u!114 &3401345437377825877
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1965879682929285331}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92882da4e8ef00f45ae9a15e87db3660, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2259742475059432050
 GameObject:
   m_ObjectHideFlags: 0
