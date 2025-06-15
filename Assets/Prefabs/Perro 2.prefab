@@ -385,6 +385,81 @@ Transform:
   - {fileID: 4746389020985643763}
   m_Father: {fileID: 4787125504529426810}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3717600917863340421
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8640154406272103387}
+  - component: {fileID: 2438067412360614378}
+  - component: {fileID: 3237834202833483360}
+  m_Layer: 0
+  m_Name: Image
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &8640154406272103387
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3717600917863340421}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.475, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 895891944953716625}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -0.00010252, y: -2.36}
+  m_SizeDelta: {x: 21.209, y: 15.281}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &2438067412360614378
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3717600917863340421}
+  m_CullTransparentMesh: 1
+--- !u!114 &3237834202833483360
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3717600917863340421}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &3911835479948695844
 GameObject:
   m_ObjectHideFlags: 0
@@ -839,6 +914,7 @@ GameObject:
   - component: {fileID: 527473760266767499}
   - component: {fileID: 2875612058234121667}
   - component: {fileID: 12311120487977220}
+  - component: {fileID: 7975007574266479192}
   m_Layer: 0
   m_Name: Perro 2
   m_TagString: Untagged
@@ -898,6 +974,91 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   estado: 0
+  hambreMin: 0.2
+  hambreMax: 0.8
+  energiaMin: 0.2
+  energiaMax: 0.8
+  aburrimientoMin: 0.2
+  aburrimientoMax: 0.8
+  curvaHambre:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  curvaEnergia:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  curvaAburrimiento:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  pesoHambre: 0.5
+  pesoEnergia: 0.5
+  pesoAburrimiento: 0.5
+  walkSprite: {fileID: 21300000, guid: ff2bc8117e8b74b4b9df5fefdae5be58, type: 3}
+  eatSprite: {fileID: 21300000, guid: c4ca31bf7dd981f4e89acdb549bd5344, type: 3}
+  playSprite: {fileID: 21300000, guid: 966596b725f9dbd45ab2114d75c8398c, type: 3}
+  sleepSprite: {fileID: 21300000, guid: 4e2782b4ecaca8b479f144c591cd2415, type: 3}
 --- !u!195 &527473760266767499
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -956,6 +1117,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tipo: 0
+--- !u!114 &7975007574266479192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6764935964214722342}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c051837820c6eb49aaed92ab5d9eea8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  imageStatus: {fileID: 0}
+  camara: {fileID: 0}
 --- !u!1 &7224256813102731326
 GameObject:
   m_ObjectHideFlags: 0
@@ -1377,6 +1552,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5231784600955447129}
     m_Modifications:
+    - target: {fileID: 951431985083323226, guid: b11071ca8c52423418bae81688b3a3f1, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 21.209
+      objectReference: {fileID: 0}
+    - target: {fileID: 951431985083323226, guid: b11071ca8c52423418bae81688b3a3f1, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 26.2931
+      objectReference: {fileID: 0}
+    - target: {fileID: 951431985083323226, guid: b11071ca8c52423418bae81688b3a3f1, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0.031
+      objectReference: {fileID: 0}
+    - target: {fileID: 951431985083323226, guid: b11071ca8c52423418bae81688b3a3f1, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 1.0544
+      objectReference: {fileID: 0}
+    - target: {fileID: 2497487503032438054, guid: b11071ca8c52423418bae81688b3a3f1, type: 3}
+      propertyPath: imageStatus
+      value: 
+      objectReference: {fileID: 3237834202833483360}
     - target: {fileID: 3626944769130976524, guid: b11071ca8c52423418bae81688b3a3f1, type: 3}
       propertyPath: m_Name
       value: CanvasAnimales
@@ -1422,10 +1617,19 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 1379163894429389706, guid: b11071ca8c52423418bae81688b3a3f1, type: 3}
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 951431985083323226, guid: b11071ca8c52423418bae81688b3a3f1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8640154406272103387}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b11071ca8c52423418bae81688b3a3f1, type: 3}
+--- !u!224 &895891944953716625 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 951431985083323226, guid: b11071ca8c52423418bae81688b3a3f1, type: 3}
+  m_PrefabInstance: {fileID: 97657125090593995}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &3674075273822780855 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3721694429964087676, guid: b11071ca8c52423418bae81688b3a3f1, type: 3}

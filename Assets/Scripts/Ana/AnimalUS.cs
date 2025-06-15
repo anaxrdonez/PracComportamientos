@@ -1,12 +1,10 @@
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Animal))]
+[RequireComponent(typeof(ChangeSprite))]  // Asegura que exista el componente para cambiar sprites
 public class AnimalUS : MonoBehaviour
 {
     public enum EstadoAnimal { Idle, Caminando, Comiendo, Jugando, Durmiendo }
@@ -28,42 +26,60 @@ public class AnimalUS : MonoBehaviour
     private float energia;
     private float aburrimiento;
 
-    // Curvas de utilidad para suavizar la decisión
-    [Header("Curvas de utilidad")]
-    public AnimationCurve curvaHambre = AnimationCurve.Linear(0, 0, 1, 1);
-    public AnimationCurve curvaEnergia = AnimationCurve.Linear(0, 0, 1, 1);
-    public AnimationCurve curvaAburrimiento = AnimationCurve.Linear(0, 0, 1, 1);
+    // Curvas de utilidad
+    [Header("Curvas de utilidad (preseleccionadas)")]
+    public AnimationCurve curvaHambre;
+    public AnimationCurve curvaEnergia;
+    public AnimationCurve curvaAburrimiento;
 
     // Pesos para cada necesidad
-    [Header("Pesos de utilidad")]
-    public float pesoHambre = 1f;
-    public float pesoEnergia = 1f;
-    public float pesoAburrimiento = 1f;
+    [Header("Pesos de utilidad (aleatorios)")]
+    [Range(0.5f, 1f)] public float pesoHambre;
+    [Range(0.5f, 1f)] public float pesoEnergia;
+    [Range(0.5f, 1f)] public float pesoAburrimiento;
+
+    // Sprites para cada estado
+    [Header("Sprites de estado")]
+    public Sprite walkSprite;
+    public Sprite eatSprite;
+    public Sprite playSprite;
+    public Sprite sleepSprite;
+
+    // Referencia al componente que cambia sprites
+    private ChangeSprite changeSprite;
 
     // Referencias a puntos de interés
     private Transform comida, descanso, juego;
     private GameManager gm;
     private Animal.TipoAnimal tipo;
-    private Transform destinoActual = null;
 
-    // UI de estado
-    private TextMeshProUGUI textoEstado;
+    [SerializeField] private Animator animator;
+    // Valores que queremos usar:
+    const float IDLE_V = 0f, MOVE_V = 1f;
+    const float WALK_S = 0f, RUN_S = 1f;
 
     void Awake()
     {
         agente = GetComponent<NavMeshAgent>();
+        changeSprite = GetComponent<ChangeSprite>();
+
         hambre = Random.Range(hambreMin, hambreMax);
         energia = Random.Range(energiaMin, energiaMax);
         aburrimiento = Random.Range(aburrimientoMin, aburrimientoMax);
+        RandomizeCurvasYPesos();
     }
 
     void Start()
     {
+        if (animator == null)
+            animator = GetComponent<Animator>();
+        if (animator == null)
+            Debug.LogError("Animator no asignado en " + name);
+
         tipo = GetComponent<Animal>().tipo;
         gm = FindObjectOfType<GameManager>();
         AsignarPuntos();
-        textoEstado = GetComponentInChildren<TextMeshProUGUI>();
-        ActualizarTextoEstado();
+        DecidirYMover();
         StartCoroutine(ActualizarEstado());
     }
 
@@ -72,6 +88,43 @@ public class AnimalUS : MonoBehaviour
         hambre = Mathf.Clamp01(hambre + Time.deltaTime * 0.01f);
         energia = Mathf.Clamp01(energia - Time.deltaTime * 0.005f);
         aburrimiento = Mathf.Clamp01(aburrimiento + Time.deltaTime * 0.008f);
+    }
+
+    void DecidirYMover()
+    {
+        float uH = curvaHambre.Evaluate(hambre) * pesoHambre;
+        float uE = curvaEnergia.Evaluate(1f - energia) * pesoEnergia;
+        float uA = curvaAburrimiento.Evaluate(aburrimiento) * pesoAburrimiento;
+
+        EstadoAnimal seleccion = EstadoAnimal.Comiendo;
+        float maxU = uH;
+        if (uE > maxU) { maxU = uE; seleccion = EstadoAnimal.Durmiendo; }
+        if (uA > maxU) { seleccion = EstadoAnimal.Jugando; }
+
+        IniciarAccion(seleccion);
+    }
+
+    void RandomizeCurvasYPesos()
+    {
+        curvaHambre = new AnimationCurve(
+            new Keyframe(0f, 0f),
+            new Keyframe(Random.Range(0.3f, 0.6f), Random.Range(0.4f, 0.9f)),
+            new Keyframe(1f, 1f)
+        );
+        curvaEnergia = new AnimationCurve(
+            new Keyframe(0f, 1f),
+            new Keyframe(Random.Range(0.4f, 0.7f), Random.Range(0.2f, 0.5f)),
+            new Keyframe(1f, 0f)
+        );
+        curvaAburrimiento = new AnimationCurve(
+            new Keyframe(0f, 0f),
+            new Keyframe(Random.Range(0.2f, 0.5f), Random.Range(0.5f, 1f)),
+            new Keyframe(Random.Range(0.7f, 0.9f), Random.Range(0.2f, 0.6f)),
+            new Keyframe(1f, 1f)
+        );
+        pesoHambre = Random.Range(0.5f, 1f);
+        pesoEnergia = Random.Range(0.5f, 1f);
+        pesoAburrimiento = Random.Range(0.5f, 1f);
     }
 
     void AsignarPuntos()
@@ -96,26 +149,7 @@ public class AnimalUS : MonoBehaviour
         {
             yield return new WaitForSeconds(10f);
             if (estado == EstadoAnimal.Caminando) continue;
-
-            // Evaluar utilidades usando curvas y pesos
-            float uHambre = curvaHambre.Evaluate(hambre) * pesoHambre;
-            float uEnergia = curvaEnergia.Evaluate(1f - energia) * pesoEnergia;
-            float uAburrimiento = curvaAburrimiento.Evaluate(aburrimiento) * pesoAburrimiento;
-
-            // Selección de la acción con mayor utilidad
-            EstadoAnimal seleccion = EstadoAnimal.Comiendo;
-            float maxUtil = uHambre;
-            if (uEnergia > maxUtil)
-            {
-                maxUtil = uEnergia;
-                seleccion = EstadoAnimal.Durmiendo;
-            }
-            if (uAburrimiento > maxUtil)
-            {
-                seleccion = EstadoAnimal.Jugando;
-            }
-
-            IniciarAccion(seleccion);
+            DecidirYMover();
         }
     }
 
@@ -134,9 +168,13 @@ public class AnimalUS : MonoBehaviour
             return;
         }
 
+        // Cambiar a estado Caminando y sprite de caminar
         estado = EstadoAnimal.Caminando;
-        destinoActual = dest;
-        ActualizarTextoEstado();
+        animator.SetFloat("Vert", MOVE_V);
+        // elegir caminata
+        animator.SetFloat("State", WALK_S); animator.SetFloat("Vert", IDLE_V);
+
+
         agente.isStopped = false;
         agente.SetDestination(dest.position);
         StartCoroutine(IrYEsperar(dest, accion));
@@ -144,7 +182,7 @@ public class AnimalUS : MonoBehaviour
 
     IEnumerator IrYEsperar(Transform destino, EstadoAnimal accionFinal)
     {
-        float timeout = 5f, timer = 0f;
+        float timeout = 2f, timer = 0f;
         while ((agente.pathPending || agente.remainingDistance > agente.stoppingDistance) && timer < timeout)
         {
             if (agente.pathStatus != NavMeshPathStatus.PathComplete) break;
@@ -153,24 +191,39 @@ public class AnimalUS : MonoBehaviour
         }
         agente.isStopped = true;
         estado = accionFinal;
-        ActualizarTextoEstado();
-        float duracion = accionFinal == EstadoAnimal.Durmiendo ? 30f : 20f;
-        yield return new WaitForSeconds(duracion);
+
+        // Cambiar sprite según la acción final
         switch (accionFinal)
         {
-            case EstadoAnimal.Comiendo: hambre = 0f; break;
-            case EstadoAnimal.Durmiendo: energia = 1f; break;
-            case EstadoAnimal.Jugando: aburrimiento = 0f; break;
+            case EstadoAnimal.Comiendo:
+                changeSprite.ActualizarSprite(eatSprite);
+                animator.SetFloat("Vert", IDLE_V);
+
+                hambre = 0f;
+                break;
+            case EstadoAnimal.Durmiendo:
+                changeSprite.ActualizarSprite(sleepSprite);
+                animator.SetFloat("Vert", IDLE_V);
+
+                energia = 1f;
+                break;
+            case EstadoAnimal.Jugando:
+                changeSprite.ActualizarSprite(playSprite);
+                animator.SetFloat("Vert", MOVE_V);
+                animator.SetFloat("State", RUN_S);
+
+                aburrimiento = 0f;
+                break;
         }
+
+        float duracion = (accionFinal == EstadoAnimal.Durmiendo) ? 30f : 20f;
+        yield return new WaitForSeconds(duracion);
+
+        // Volver a Idle con sprite de caminar
         estado = EstadoAnimal.Idle;
-        ActualizarTextoEstado();
+        changeSprite.ActualizarSprite(walkSprite);
+        animator.SetFloat("Vert", MOVE_V);
+        // elegir caminata
+        animator.SetFloat("State", WALK_S);
     }
-
-    void ActualizarTextoEstado()
-    {
-        if (textoEstado != null)
-            textoEstado.text = estado.ToString();
-    }
-
-    
 }
