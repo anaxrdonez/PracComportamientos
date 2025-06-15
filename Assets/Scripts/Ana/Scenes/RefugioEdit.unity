@@ -2652,7 +2652,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &267631950
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2666,7 +2666,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   luzDireccional: {fileID: 705507994}
-  duracionCiclo: 120
+  duracionCiclo: 360
   lucesNocturnas:
   - {fileID: 1626904296}
   - {fileID: 564702165}
