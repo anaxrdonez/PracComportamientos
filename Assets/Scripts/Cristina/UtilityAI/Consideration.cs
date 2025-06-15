@@ -17,7 +17,7 @@ namespace Pet.UtilityAI
         private float _score;
         public float score
         {
-            get { return score; }
+            get { return _score; }
             set { this._score = Mathf.Clamp01(value); }
         }
 

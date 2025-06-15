@@ -51,6 +51,20 @@ namespace Pet.Core
         public delegate void StatValueChangedHandler();
         public event StatValueChangedHandler OnStatValueChanged;
 
+
+        void Awake()
+        {
+            // Si no lo asignaste en el Inspector, busca un Billboard en los hijos
+            if (billboard == null)
+            {
+                billboard = GetComponentInChildren<Billboard>();
+            }
+            if (billboard == null)
+            {
+                Debug.LogError($"{name}: Stats necesita un componente Billboard asignado o en hijos.");
+            }
+        }
+
         // Start is called before the first frame update
         void Start()
         {
@@ -58,13 +72,29 @@ namespace Pet.Core
             energy = Random.Range(20, 80);
             boredom = Random.Range(10, 100);
 
-            
+            // Inicializamos los temporizadores para que comiencen a contar
+            timeLeftHunger = timeToDecreaseHunger;
+            timeLeftEnergy = timeToDecreaseEnergy;
+            timeLeftBoredom = timeToDecreaseBoredom;
+
+
+        }
+
+        private void OnEnable()
+        {
+            OnStatValueChanged += UpdateDisplayText;
+        }
+
+        private void OnDisable()
+        {
+            OnStatValueChanged -= UpdateDisplayText;
         }
 
         private void Update()
         {
             UpdateEnergy();
             UpdateHunger();
+            UpdateBoredom();
         }
 
         public void UpdateHunger()
@@ -103,6 +133,13 @@ namespace Pet.Core
             boredom -= 1;
         }
 
-        
+        void UpdateDisplayText()
+        {
+            if (billboard == null)
+                return;  // Ya avisamos en Awake, aquí simplemente salimos si no está
+
+            billboard.UpdateStatsText(energy, hunger, boredom);
+        }
+
     }
 }

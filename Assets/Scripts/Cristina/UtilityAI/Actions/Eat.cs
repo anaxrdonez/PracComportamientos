@@ -17,7 +17,23 @@ namespace Pet.UtilityAI.Actions
         /// </summary>
         public override void Execute(PetController petController)
         {
+            petController.billboard?.ActualizarTexto("Comiendo...");
+
             petController.Eat(eatTime);
+        }
+
+        public override void SetDestination(PetController petController)
+        {
+            switch (petController.petType)
+            {
+                case PetType.Cat:
+                    RequiredDestination = petController.context.catFood.transform;
+                    break;
+                case PetType.Dog:
+                    RequiredDestination = petController.context.dogFood.transform;
+                    break;
+            }
+            petController.moveController.destination = RequiredDestination; // Update the move controller's destination to the food's position
         }
     }
 }

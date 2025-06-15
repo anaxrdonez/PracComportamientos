@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UIElements;
 
 
 namespace Pet.Core
@@ -9,6 +10,8 @@ namespace Pet.Core
     public class MoveController : MonoBehaviour
     {
         private NavMeshAgent agent;
+        public Transform destination;
+
 
         // Start is called before the first frame update
         void Start()
@@ -22,16 +25,10 @@ namespace Pet.Core
 
         }
 
-        public void MoveTo(Vector3 destination)
+        public void MoveTo(Vector3 position)
         {
-            if (agent != null)
-            {
-                agent.SetDestination(destination);
-            }
-            else
-            {
-                Debug.LogError("NavMeshAgent component is missing on " + gameObject.name);
-            }
+            agent.destination = position;
+
         }
     }
 }

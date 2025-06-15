@@ -19,7 +19,10 @@ namespace Pet.UtilityAI
         }
 
         public Consideration[] considerations;
-        
+
+        public Transform RequiredDestination { get; protected set; }
+
+
 
         public virtual void Awake()
         {
@@ -27,6 +30,8 @@ namespace Pet.UtilityAI
         }
 
         public abstract void Execute(PetController petController);
+
+        public abstract void SetDestination(PetController petController);
 
 
     }

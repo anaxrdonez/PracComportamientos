@@ -13,7 +13,15 @@ namespace Pet.UtilityAI.Actions
         int playTime = 5;
         public override void Execute(PetController petController)
         {
+            petController.billboard?.ActualizarTexto("Jugando...");
+
             petController.Play(playTime);
+
+        }
+
+        public override void SetDestination(PetController petController)
+        {
+            RequiredDestination = petController.transform;
 
         }
     }

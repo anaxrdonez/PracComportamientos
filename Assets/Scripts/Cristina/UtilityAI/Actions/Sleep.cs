@@ -17,7 +17,23 @@ namespace Pet.UtilityAI.Actions
         /// </summary>
         public override void Execute(PetController petController)
         {
+            petController.billboard?.ActualizarTexto("Durmiendo...");
+
             petController.Sleep(sleepTime);
+        }
+
+        public override void SetDestination(PetController petController)
+        {
+            switch (petController.petType)
+            {
+                case PetType.Cat:
+                    RequiredDestination = petController.context.catBed.transform;
+                    break;
+                case PetType.Dog:
+                    RequiredDestination = petController.context.dogBed.transform;
+                    break;
+            }
+            petController.moveController.destination = RequiredDestination; // Update the move controller's destination to the bed's position
         }
     }
 }

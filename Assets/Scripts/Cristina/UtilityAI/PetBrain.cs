@@ -13,11 +13,12 @@ namespace Pet.UtilityAI
     {
         private PetController pet;
         public bool finishedDeciding { get; set; } = false; // Indicates if the decision-making process is complete
-
+        public bool finishedExecutingBestAction { get; set; } = false; // Indicates if the best action has been executed
         /// <summary>
         /// List of actions currently considered the best based on their scores.
         /// </summary>
         public Action bestAction { get; set; }
+        [SerializeField] Action[] actionsAvailable;
 
         /// <summary>
         /// Called when the script instance is being loaded.
@@ -33,21 +34,19 @@ namespace Pet.UtilityAI
         /// </summary>
         void Update()
         {
-            if (bestAction is null)
-            {
-                // If no best action is selected, decide the best action from available actions
-                DecideBestAction(pet.actionsAvailable);
-            }
+            
         }
 
         /// <summary>
         /// Loops through all available actions and selects the one with the highest score.
         /// </summary>
         /// <param name="actionsAvailable">List of actions to evaluate.</param>
-        public void DecideBestAction(Action[] actionsAvailable)
+        public void DecideBestAction()
         {
+            finishedExecutingBestAction = false; // Reset the execution status of the best action
+
             float score = 0f;
-            int nextBestActionIndex = -1;
+            int nextBestActionIndex = 0;
             foreach (Action action in actionsAvailable)
             {
                 float actionScore = ScoreAction(action); // Calculate the score for each action
@@ -60,7 +59,12 @@ namespace Pet.UtilityAI
             }
 
             bestAction = actionsAvailable[nextBestActionIndex];
+            bestAction.SetDestination(pet); // Set the destination for the best action
+
+
             finishedDeciding = true; // Mark that the decision-making is complete
+
+            //UPDATE BEST ACTION ICON
         }
 
 
