@@ -6,7 +6,7 @@ public class ClientePersonalidadIcono : MonoBehaviour
     public GameObject iconoTranquilo;
     public GameObject iconoActivo;
 
-    public void MostrarIcono(string personalidad)
+    public void MostrarIconoCliente(string personalidad)
     {
         iconoCariñoso?.SetActive(false);
         iconoTranquilo?.SetActive(false);

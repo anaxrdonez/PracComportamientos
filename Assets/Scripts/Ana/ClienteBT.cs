@@ -493,7 +493,7 @@ public class ClienteBT : MonoBehaviour
             var icono = GetComponentInChildren<ClientePersonalidadIcono>();
             if (icono != null)
             {
-                icono.MostrarIcono(personalidadCliente);
+                icono.MostrarIconoCliente(personalidadCliente);
             }
         }
     }

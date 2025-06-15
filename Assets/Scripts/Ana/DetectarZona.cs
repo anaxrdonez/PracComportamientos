@@ -12,11 +12,11 @@ public class DetectarZona : MonoBehaviour
         Collider col = GetComponent<Collider>();
         if (col == null)
         {
-            Debug.LogError("❌ ERROR: " + gameObject.name + " no tiene un Collider. Agrega uno y marca 'Is Trigger'.");
+            Debug.LogError("ERROR: " + gameObject.name + " no tiene un Collider. Agrega uno y marca 'Is Trigger'.");
         }
         else if (!col.isTrigger)
         {
-            Debug.LogError("⚠️ ADVERTENCIA: " + gameObject.name + " tiene un Collider, pero no está marcado como 'Trigger'.");
+            Debug.LogError("ADVERTENCIA: " + gameObject.name + " tiene un Collider, pero no está marcado como 'Trigger'.");
         }
     }
 

@@ -63,9 +63,9 @@ public class GameManager : MonoBehaviour
     { ("Activo", "Cariñoso"), 0.7f },
     { ("Activo", "Tranquilo"), 0.4f },
 
-    { ("Independiente", "Tranquilo"), 1f },
-    { ("Independiente", "Activo"), 0.6f },
-    { ("Independiente", "Cariñoso"), 0.3f },
+    { ("Tranquilo", "Tranquilo"), 1f },
+    { ("Tranquilo", "Activo"), 0.6f },
+    { ("Tranquilo", "Cariñoso"), 0.3f },
 
 };
 
@@ -82,9 +82,17 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < 3; i++)
         {
             GameObject perro = Instantiate(perroPrefab, zonaPerros.position, Quaternion.identity);
-            GameObject gato = Instantiate(gatoPrefab, zonaGatos.position, Quaternion.identity);
+            string personalidadPerro = perro.GetComponent<Animal>().personalidadAnimal = ObtenerPersonalidadAleatoria(); 
             perrosDisponibles.Add(perro);
+
+            GameObject gato = Instantiate(gatoPrefab, zonaGatos.position, Quaternion.identity);
+            string personalidadGato = gato.GetComponent<Animal>().personalidadAnimal = ObtenerPersonalidadAleatoria();
             gatosDisponibles.Add(gato);
+
+            perro.GetComponentInChildren<AnimalPersonalidadIcono>()?.MostrarIconoAnimal(personalidadPerro);
+            gato.GetComponentInChildren<AnimalPersonalidadIcono>()?.MostrarIconoAnimal(personalidadGato);
+            
+            
         }
         cameraSwitcher = FindObjectOfType<CameraSwitcher>();
 
@@ -106,7 +114,7 @@ public class GameManager : MonoBehaviour
                 {
                     clienteScript.InicializarCliente(puntoCheckIn, salaEspera, salaEntrevista, zonaGatos, zonaPerros, checkout, salida, this);
                     clientesActuales++;
-                    clienteScript.personalidadCliente = ObtenerPersonalidadAleatoriaCliente();
+                    clienteScript.personalidadCliente = ObtenerPersonalidadAleatoria();
 
 
                     RecepcionistaFSM recepcionista = FindObjectOfType<RecepcionistaFSM>();
@@ -140,9 +148,9 @@ public class GameManager : MonoBehaviour
     }
 
 
-    public string ObtenerPersonalidadAleatoriaCliente()
+    public string ObtenerPersonalidadAleatoria()
     {
-        string[] opciones = { "Cariñoso", "Activo", "Independiente" };
+        string[] opciones = { "Cariñoso", "Activo", "Tranquilo" };
         return opciones[UnityEngine.Random.Range(0, opciones.Length)];
     }
     void GenerarLimpiadores()

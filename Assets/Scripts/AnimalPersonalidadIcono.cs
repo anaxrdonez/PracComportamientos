@@ -6,14 +6,13 @@ public class AnimalPersonalidadIcono : MonoBehaviour
     public GameObject iconoTranquilo;
     public GameObject iconoActivo;
 
-    void Start()
+    public void MostrarIconoAnimal(string personalidad)
     {
         // Ocultar todos al principio
         iconoCariñoso?.SetActive(false);
         iconoTranquilo?.SetActive(false);
         iconoActivo?.SetActive(false);
 
-        string personalidad = GetComponent<Animal>().personalidadAnimal;
 
         // Activar el correspondiente
         switch (personalidad)
@@ -31,5 +30,7 @@ public class AnimalPersonalidadIcono : MonoBehaviour
                 Debug.LogWarning($"Personalidad desconocida en animal: {personalidad}");
                 break;
         }
+        Debug.Log($"Iconos asignados en {name} -> Cariñoso: {iconoCariñoso != null}, Tranquilo: {iconoTranquilo != null}, Activo: {iconoActivo != null}");
+
     }
 }
