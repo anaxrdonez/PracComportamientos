@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.AI;
+using UnityEngine.UI; // 👈 Añadido para usar Image y Sprite
 
 public class RecepcionistaFSM : MonoBehaviour
 {
@@ -14,14 +15,20 @@ public class RecepcionistaFSM : MonoBehaviour
     public Transform puntoRecepcion;
     private GameManager gameManager;
 
+    [Header("UI de estado")]
+    public Image estadoIcono;                // Imagen del canvas
+    public Sprite iconoEsperando;            // Icono para estado Esperando
+    public Sprite iconoRegistrando;          // Icono para estado Registrando
+    public Sprite iconoInformando;           // Icono para estado Informando
+
     void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
 
         if (puntoRecepcion == null)
-        {
             Debug.LogError("❌ puntoRecepcion no asignado en RecepcionistaFSM.");
-        }
+
+        ActualizarIconoEstado(); // 👈 Mostrar icono inicial
 
         StartCoroutine(FSM());
     }
@@ -36,50 +43,61 @@ public class RecepcionistaFSM : MonoBehaviour
     {
         while (true)
         {
-            //Debug.Log($"📌 Estado actual: {estadoActual}");
-
             switch (estadoActual)
             {
                 case Estado.EsperandoCliente:
                     if (colaClientes.Count > 0)
                     {
                         clienteActual = colaClientes.Dequeue();
-                        //Debug.Log("🎯 Cliente dequeued y listo para registrar");
                         estadoActual = Estado.Registrando;
+                        ActualizarIconoEstado(); // 👈 Actualiza icono
                     }
                     break;
 
                 case Estado.Registrando:
-                    //Debug.Log("✍️ Esperando que el cliente llegue a CheckIn...");
                     while (clienteActual != null && clienteActual.DetectarZonaActual() != "CheckIn")
-                    {
                         yield return null;
-                    }
 
-                   // Debug.Log("📍 Cliente ha llegado a CheckIn (confirmado por zona)");
-                    yield return new WaitForSeconds(2f); // Simula tiempo de registro
+                    yield return new WaitForSeconds(2f);
 
                     if (clienteActual != null)
                     {
-                       // Debug.Log("✅ Confirmando check-in del cliente");
                         clienteActual.ConfirmarCheckIn();
-                        gameManager?.LiberarRecepcion(); // 🔓 Liberar aquí la recepción
-                    }
-                    else
-                    {
-                       // Debug.LogWarning("⚠️ clienteActual es null en Registrando");
+                        gameManager?.LiberarRecepcion();
                     }
 
                     estadoActual = Estado.Informando;
+                    ActualizarIconoEstado(); // 👈 Actualiza icono
                     break;
 
                 case Estado.Informando:
-                    //Debug.Log("📋 Informando al cliente.");
                     yield return new WaitForSeconds(1f);
                     estadoActual = Estado.EsperandoCliente;
+                    ActualizarIconoEstado(); // 👈 Actualiza icono
                     break;
             }
+
             yield return null;
         }
+    }
+
+    private void ActualizarIconoEstado()
+    {
+        if (estadoIcono == null) return;
+
+        switch (estadoActual)
+        {
+            case Estado.EsperandoCliente:
+                estadoIcono.sprite = iconoEsperando;
+                break;
+            case Estado.Registrando:
+                estadoIcono.sprite = iconoRegistrando;
+                break;
+            case Estado.Informando:
+                estadoIcono.sprite = iconoInformando;
+                break;
+        }
+
+        estadoIcono.enabled = true;
     }
 }
