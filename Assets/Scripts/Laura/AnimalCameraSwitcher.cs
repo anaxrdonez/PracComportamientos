@@ -8,6 +8,9 @@ public class AnimalCameraSwitcher : MonoBehaviour
     private int deerIndex = -1;
     private int tigerIndex = -1;
 
+    // Estado para el toggle de los sensores
+    private bool sensorsVisible = true;
+
     void Start()
     {
         // Buscar todas las cámaras hijas de los ciervos
@@ -43,6 +46,9 @@ public class AnimalCameraSwitcher : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.M))
             SwitchToMainCamera();
+
+        if (Input.GetKeyDown(KeyCode.S))
+            ToggleSensorMeshes();
     }
 
     // Desactiva absolutamente todas las cámaras antes de activar la que toque
@@ -73,7 +79,6 @@ public class AnimalCameraSwitcher : MonoBehaviour
     private void SwitchToMainCamera()
     {
         DisableAllCameras();
-        // Busca la cámara principal por tag
         var mainCamObj = GameObject.FindWithTag("MainCamera");
         if (mainCamObj != null)
         {
@@ -85,5 +90,30 @@ public class AnimalCameraSwitcher : MonoBehaviour
         {
             Debug.LogWarning("No se encontró ningún GameObject con tag 'MainCamera'");
         }
+    }
+
+    // Alterna la visibilidad de los MeshRenderer en todos los objetos con tag "sensor"
+    private void ToggleSensorMeshes()
+    {
+        // Cambia el estado
+        sensorsVisible = !sensorsVisible;
+
+        // Encuentra todos los objetos etiquetados como "sensor"
+        var sensors = GameObject.FindGameObjectsWithTag("sensor");
+        if (sensors.Length == 0)
+        {
+            Debug.LogWarning("No se encontraron objetos con tag 'sensor'.");
+            return;
+        }
+
+        // Activa o desactiva todos sus MeshRenderer según el estado
+        foreach (var obj in sensors)
+        {
+            var mr = obj.GetComponent<MeshRenderer>();
+            if (mr != null)
+                mr.enabled = sensorsVisible;
+        }
+
+        Debug.Log($"Sensores {(sensorsVisible ? "activados" : "desactivados")}.");
     }
 }
