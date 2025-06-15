@@ -29,7 +29,7 @@ namespace Pet.UtilityAI
 
         // Al contrario de las acciones, las consideraciones se evaluan cada una a su manera
         // las acciones te valoran todas igual
-        public abstract float ScoreConsideration();
+        public abstract float ScoreConsideration(PetController pet);
 
 
 

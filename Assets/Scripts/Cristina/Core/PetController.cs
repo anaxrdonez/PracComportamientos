@@ -11,7 +11,10 @@ namespace Pet.Core
         public PetBrain aiBrain { get; set; }
         public Action[] actionsAvailable;
 
-    // Start is called before the first frame update
+        public Stats stats { get; set; }
+
+
+        // Start is called before the first frame update
         void Start()
         {
             moveController = GetComponent<MoveController>();
@@ -61,7 +64,12 @@ namespace Pet.Core
 
 
             //logic to update things involved with playing
+            
+
+
             Debug.Log("Finished playing.");
+            stats.energy -= 60; // Updating energy after playing
+            stats.boredom -= 80; // Updating boredom after playing
 
             //Decide next action
 
@@ -87,7 +95,10 @@ namespace Pet.Core
 
 
             //logic to update energy
+            stats.energy += 100; // Updating energy after sleeping
             Debug.Log("Finished sleeping.");
+            OnFinishedAction();
+
 
 
         }
@@ -111,6 +122,7 @@ namespace Pet.Core
 
 
             //logic to update energy
+            stats.hunger -=30; // Updating hunger after eating
             Debug.Log("Eat sleeping.");
 
             OnFinishedAction();

@@ -18,7 +18,6 @@ namespace Pet.UtilityAI.Actions
         public override void Execute(PetController petController)
         {
             petController.Eat(eatTime);
-            petController.OnFinishedAction();
         }
     }
 }

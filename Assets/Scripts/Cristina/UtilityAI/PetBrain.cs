@@ -76,7 +76,7 @@ namespace Pet.UtilityAI
 
             foreach (Consideration consideration in action.considerations)
             {
-                float considerationScore = consideration.ScoreConsideration();
+                float considerationScore = consideration.ScoreConsideration(pet);
                 score *= considerationScore; // Multiply scores to combine utility
 
                 if (score == 0f)

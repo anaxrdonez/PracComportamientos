@@ -9,9 +9,12 @@ namespace Pet.UtilityAI.Considerations
     [CreateAssetMenu(fileName = "EnergyConsideration", menuName = "Pet/UtilityAI/Considerations/EnergyConsideration")]
     public class EnergyConsideration : Consideration
     {
-        public override float ScoreConsideration()
+        [SerializeField] private AnimationCurve responseCurve;
+
+        public override float ScoreConsideration(PetController pet)
         {
-            throw new System.NotImplementedException();
+            score = responseCurve.Evaluate(Mathf.Clamp01(pet.stats.energy / 100)); // Evaluate the curve based on the hunger level
+            return score; // Return the calculated score        }
         }
     }
 }
