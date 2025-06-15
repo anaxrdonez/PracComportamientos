@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.AI;
-using UnityEngine.UI; // 👈 Añadido para usar Image y Sprite
+using UnityEngine.UI; 
 
 public class RecepcionistaFSM : MonoBehaviour
 {
@@ -28,7 +28,7 @@ public class RecepcionistaFSM : MonoBehaviour
         if (puntoRecepcion == null)
             Debug.LogError("❌ puntoRecepcion no asignado en RecepcionistaFSM.");
 
-        ActualizarIconoEstado(); // 👈 Mostrar icono inicial
+        ActualizarIconoEstado(); 
 
         StartCoroutine(FSM());
     }
@@ -50,7 +50,7 @@ public class RecepcionistaFSM : MonoBehaviour
                     {
                         clienteActual = colaClientes.Dequeue();
                         estadoActual = Estado.Registrando;
-                        ActualizarIconoEstado(); // 👈 Actualiza icono
+                        ActualizarIconoEstado(); 
                     }
                     break;
 
@@ -67,13 +67,13 @@ public class RecepcionistaFSM : MonoBehaviour
                     }
 
                     estadoActual = Estado.Informando;
-                    ActualizarIconoEstado(); // 👈 Actualiza icono
+                    ActualizarIconoEstado(); 
                     break;
 
                 case Estado.Informando:
                     yield return new WaitForSeconds(1f);
                     estadoActual = Estado.EsperandoCliente;
-                    ActualizarIconoEstado(); // 👈 Actualiza icono
+                    ActualizarIconoEstado(); 
                     break;
             }
 
